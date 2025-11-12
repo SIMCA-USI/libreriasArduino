@@ -44,7 +44,12 @@
 #ifndef OPENTHREAD_BLE_SECURE_H_
 #define OPENTHREAD_BLE_SECURE_H_
 
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
+
+#include <openthread/error.h>
+#include <openthread/instance.h>
 #include <openthread/message.h>
 #include <openthread/tcat.h>
 
@@ -170,6 +175,26 @@ void otBleSecureSetPsk(otInstance    *aInstance,
  * @retval OT_ERROR_NO_BUFS         Can't allocate memory for certificate.
  */
 otError otBleSecureGetPeerCertificateBase64(otInstance *aInstance, unsigned char *aPeerCert, size_t *aCertLength);
+
+/**
+ * Returns the DER encoded peer x509 certificate.
+ *
+ * @note Requires the build-time feature `MBEDTLS_SSL_KEEP_PEER_CERTIFICATE` to
+ * be enabled.
+ *
+ * @param[in]       aInstance        A pointer to an OpenThread instance.
+ * @param[out]      aPeerCert        A pointer to the DER encoded certificate
+ *                                   buffer.
+ * @param[in,out]   aCertLength      On input, the size the max size of @p
+ *                                   aPeerCert. On output, the length of the
+ *                                   DER encoded peer certificate.
+ *
+ * @retval OT_ERROR_NONE            Successfully get the peer certificate.
+ * @retval OT_ERROR_INVALID_ARGS    @p aInstance or @p aCertLength is invalid.
+ * @retval OT_ERROR_INVALID_STATE   Not connected yet.
+ * @retval OT_ERROR_NO_BUFS         Can't allocate memory for certificate.
+ */
+otError otBleSecureGetPeerCertificateDer(otInstance *aInstance, unsigned char *aPeerCert, size_t *aCertLength);
 
 /**
  * Returns an attribute value identified by its OID from the subject

@@ -53,6 +53,13 @@ typedef handle_t event_t;
 /** TODO: Change this */
 typedef void (*event_callback_t)(const ChipDeviceEvent *event, intptr_t arg);
 
+/** Return whether the Matter is intialized and started
+ *
+ *  @return true if Matter is started
+ *  @return false if Matter is not started
+ */
+bool is_started();
+
 /** ESP Matter Start
  *
  * Initialize and start the matter thread.
@@ -120,6 +127,13 @@ namespace node {
  */
 node_t *create_raw();
 
+/** Destroy raw node
+ *
+ * @return ESP_OK on success.
+ * @return error in case of failure.
+ */
+esp_err_t destroy_raw();
+
 /** Get node
  *
  * @return Node handle on success.
@@ -127,6 +141,39 @@ node_t *create_raw();
  */
 node_t *get();
 
+/** Destroy node
+ *
+ * This will destroy the node and all the endpoints, clusters, attributes, commands and events associated with it.
+ *
+ * @note: Call this function only if matter is not running.
+ *
+ * @return ESP_OK on success.
+ * @return error in case of failure.
+ */
+esp_err_t destroy();
+
+/** Get the endpoint count for a server cluster
+ *
+ * Get the number of endpoints that have the given cluster ID as a server cluster.
+ *
+ * @param[in] cluster_id Cluster ID.
+ *
+ * @return Endpoint count on success.
+ * @return 0 in case of failure or if not found on any endpoint.
+ */
+
+uint32_t get_server_cluster_endpoint_count(uint32_t cluster_id);
+
+/** Get the endpoint count for a client cluster
+ *
+ * Get the number of endpoints that have the given cluster ID as a client cluster.
+ *
+ * @param[in] cluster_id Cluster ID.
+ *
+ * @return Endpoint count on success.
+ * @return 0 in case of failure or if not found on any endpoint.
+ */
+uint32_t get_client_cluster_endpoint_count(uint32_t cluster_id);
 } /* node */
 
 namespace endpoint {
@@ -184,6 +231,17 @@ esp_err_t destroy(node_t *node, endpoint_t *endpoint);
  * @return NULL in case of failure.
  */
 endpoint_t *get(node_t *node, uint16_t endpoint_id);
+
+/** Get endpoint
+ *
+ * Get the endpoint present on the node.
+ *
+ * @param[in] endpoint_id Endpoint ID of the endpoint.
+ *
+ * @return Endpoint handle on success.
+ * @return NULL in case of failure.
+ */
+endpoint_t *get(uint16_t endpoint_id);
 
 /** Get first endpoint
  *
@@ -290,6 +348,31 @@ esp_err_t set_parent_endpoint(endpoint_t *endpoint, endpoint_t *parent_endpoint)
  */
 void *get_priv_data(uint16_t endpoint_id);
 
+/** Set private data
+ *
+ * Set the private data after creating the endpoint.
+ *
+ * @param[in] endpoint_id Endpoint ID of the endpoint.
+ * @param[in] priv_data Private data of the endpoint.
+ *
+ * @return ESP_OK on success.
+ * @return ESP_ERR_INVALID_STATE or ESP_ERR_NOT_FOUND in case of failure.
+ */
+esp_err_t set_priv_data(uint16_t endpoint_id, void *priv_data);
+
+/** Set identify
+ *
+ * Set identify to the endpoint. The identify pointer should be dynamically allocated using 'chip::Platform::New<Identify>()',
+ * and once Matter stack is done using it, it will be freed by 'chip::Platform::Delete()'.
+ *
+ * @param[in] endpoint_id Endpoint id.
+ * @param[in] identify Identify pointer.
+ *
+ * @return ESP_OK on success.
+ * @return error in case of failure.
+ */
+esp_err_t set_identify(uint16_t endpoint_id, void *identify);
+
 /** Enable endpoint
  *
  * Enable the endpoint which has been previously created.
@@ -321,6 +404,12 @@ typedef void (*plugin_server_init_callback_t)();
  */
 typedef void (*delegate_init_callback_t)(void *ptr, uint16_t endpoint_id);
 
+/** Cluster add bounds callback
+ *
+ * This callback will be called when the endpoints are initialised.
+ */
+typedef void (*add_bounds_callback_t)(cluster_t *cluster);
+
 /** Generic function
  *
  * This can be used to add additional functions based on `cluster_flags_t`.
@@ -351,6 +440,18 @@ cluster_t *create(endpoint_t *endpoint, uint32_t cluster_id, uint8_t flags);
  * @return NULL in case of failure.
  */
 cluster_t *get(endpoint_t *endpoint, uint32_t cluster_id);
+
+/** Get cluster
+ *
+ * Get the cluster present on the endpoint.
+ *
+ * @param[in] endpoint_id Endpoint id.
+ * @param[in] cluster_id Cluster ID for the cluster.
+ *
+ * @return Cluster handle on success.
+ * @return NULL in case of failure.
+ */
+cluster_t *get(uint16_t endpoint_id, uint32_t cluster_id);
 
 /** Get first cluster
  *
@@ -421,6 +522,16 @@ esp_err_t set_plugin_server_init_callback(cluster_t *cluster, plugin_server_init
  */
 esp_err_t set_delegate_and_init_callback(cluster_t *cluster, delegate_init_callback_t callback, void *delegate);
 
+/** Set server cluster add bounds callback
+ *
+ * @param[in] cluster Cluster handle.
+ * @param[in] callback Add bounds callback.
+ *
+ * @return ESP_OK on success.
+ * @return error in case of failure.
+ */
+esp_err_t set_add_bounds_callback(cluster_t *cluster, add_bounds_callback_t callback);
+
 /** Get cluster plugin server init callback
  *
  * Get the cluster plugin server init callback which has previously been set.
@@ -440,6 +551,15 @@ plugin_server_init_callback_t get_plugin_server_init_callback(cluster_t *cluster
  * @return NULL in case of failure or if it has not been set.
  */
 delegate_init_callback_t get_delegate_init_callback(cluster_t *cluster);
+
+/** Get server cluster add bounds callback
+ *
+ * @param[in] cluster Cluster handle.
+ *
+ * @return add bounds callback.
+ * @return NULL in case of failure or if it has not been set.
+ */
+add_bounds_callback_t get_add_bounds_callback(cluster_t *cluster);
 
 /** Add cluster function list
  *
@@ -476,7 +596,7 @@ namespace attribute {
  * @return Attribute handle on success.
  * @return NULL in case of failure.
  */
-attribute_t *create(cluster_t *cluster, uint32_t attribute_id, uint8_t flags, esp_matter_attr_val_t val,
+attribute_t *create(cluster_t *cluster, uint32_t attribute_id, uint16_t flags, esp_matter_attr_val_t val,
                     uint16_t max_val_size = 0);
 
 /** Get attribute
@@ -490,6 +610,20 @@ attribute_t *create(cluster_t *cluster, uint32_t attribute_id, uint8_t flags, es
  * @return NULL in case of failure.
  */
 attribute_t *get(cluster_t *cluster, uint32_t attribute_id);
+
+/** Get attribute
+ *
+ * Get the attribute present on the cluster.
+ *
+ * @param[in] endpoint_id Endpoint id..
+ * @param[in] cluster_id Cluster ID for the Cluster.
+ * @param[in] attribute_id Attribute ID for the attribute.
+ *
+ * @return Attribute handle on success.
+ * @return NULL in case of failure.
+ */
+attribute_t *get(uint16_t endpoint_id, uint32_t cluster_id, uint32_t attribute_id);
+
 
 /** Get first attribute
  *
@@ -526,7 +660,7 @@ uint32_t get_id(attribute_t *attribute);
 
 /** Set attribute val
  *
- * Set/Update the value of the attribute in the database.
+ * Set/Update the value of the attribute (has `ATTRIBUTE_FLAG_EXTERNAL_STORAGE` flag) in the database.
  *
  * @note: Once `esp_matter::start()` is done, `attribute::update()` should be used to update the attribute value.
  *
@@ -540,7 +674,7 @@ esp_err_t set_val(attribute_t *attribute, esp_matter_attr_val_t *val);
 
 /** Get attribute val
  *
- * Get the value of the attribute from the database.
+ * Get the value of the attribute (has `ATTRIBUTE_FLAG_EXTERNAL_STORAGE` flag) from the database.
  *
  * @param[in] attribute Attribute handle.
  * @param[out] val Pointer to `esp_matter_attr_val_t`. Use appropriate elements as per the value type.
@@ -568,7 +702,7 @@ esp_err_t get_val_raw(uint16_t endpoint_id, uint32_t cluster_id, uint32_t attrib
 
 /** Add attribute bounds
  *
- * Add bounds to the attribute. Bounds cannot be added to string/array type attributes.
+ * Add bounds to the attribute (has `ATTRIBUTE_FLAG_EXTERNAL_STORAGE` flag). Bounds cannot be added to string/array type attributes.
  *
  * @param[in] attribute Attribute handle.
  * @param[in] min Minimum allowed value.
@@ -581,14 +715,15 @@ esp_err_t add_bounds(attribute_t *attribute, esp_matter_attr_val_t min, esp_matt
 
 /** Get attribute bounds
  *
- * Get the bounds which have been added to the attribute.
+ * Get the bounds which have been added to the attribute (has `ATTRIBUTE_FLAG_EXTERNAL_STORAGE` flag).
  *
  * @param[in] attribute Attribute handle.
+ * @param[in] bounds Pointer to `esp_matter_attr_bounds_t`.
  *
- * @return Pointer to the attribute bounds structure.
- * @return NULL in case of failure or if the bounds were not added.
+ * @return ESP_OK on success.
+ * @return error in case of failure.
  */
-esp_matter_attr_bounds_t *get_bounds(attribute_t *attribute);
+esp_err_t get_bounds(attribute_t *attribute, esp_matter_attr_bounds_t *bounds);
 
 /** Get attribute flags
  *
@@ -602,7 +737,7 @@ uint16_t get_flags(attribute_t *attribute);
 
 /** Set attribute override
  *
- * Set the override callback for the attribute. For attribute read and write calls, instead of doing that from the
+ * Set the override callback for the attribute (has `ATTRIBUTE_FLAG_EXTERNAL_STORAGE` flag). For attribute read and write calls, instead of doing that from the
  * common database, this callback will be called.
  *
  * This can be used if the application or some component wants to maintain the attribute's value in the application or
@@ -619,7 +754,7 @@ esp_err_t set_override_callback(attribute_t *attribute, callback_t callback);
 
 /** Get attribute override
  *
- * Get the override callback for the attribute.
+ * Get the override callback for the attribute (has `ATTRIBUTE_FLAG_EXTERNAL_STORAGE` flag).
  *
  * @param[in] attribute Attribute handle.
  *
@@ -627,7 +762,7 @@ esp_err_t set_override_callback(attribute_t *attribute, callback_t callback);
  */
 callback_t get_override_callback(attribute_t *attribute);
 
-/** Set attribute deferred persistence
+/** Set attribute (has `ATTRIBUTE_FLAG_EXTERNAL_STORAGE` flag) deferred persistence
  *
  * Only non-volatile attributes can be set with deferred presistence. If an attribute is configured with deferred
  * presistence, any modifications to it will be enacted in its persistent storage with a specific delay

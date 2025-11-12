@@ -195,8 +195,8 @@ public:
          * - CHIP_ERROR_TIMEOUT: A response was not received within the expected response timeout.
          * - CHIP_ERROR_*TLV*: A malformed, non-compliant response was received from the server.
          * - CHIP_ERROR encapsulating a StatusIB: If we got a non-path-specific
-         *   status response from the server.  In that case,
-         *   StatusIB::InitFromChipError can be used to extract the status.
+         *   status response from the server.  In that case, constructing
+         *   a StatusIB from the error can be used to extract the status.
          * - CHIP_ERROR*: All other cases.
          *
          * This object MUST continue to exist after this call is completed. The application shall wait until it
@@ -339,6 +339,9 @@ public:
      *  This will send either a Read Request or a Subscribe Request depending on
      *  the InteractionType this read client was initialized with.
      *
+     *  If the params contain more data version filters than can fit in the request packet
+     *  the list will be truncated as needed, i.e. filter inclusion is on a best effort basis.
+     *
      *  @retval #others fail to send read request
      *  @retval #CHIP_NO_ERROR On success.
      */
@@ -347,12 +350,10 @@ public:
     /**
      *  Re-activate an inactive subscription.
      *
-     *  When subscribing to LIT-ICD and liveness timeout reached and OnResubscriptionNeeded returns
-     * CHIP_ERROR_LIT_SUBSCRIBE_INACTIVE_TIMEOUT, the read client will move to the InactiveICDSubscription state and
-     * resubscription can be triggered via OnActiveModeNotification().
+     *  This function should be called when the peer is an ICD that is checking in and this ReadClient represents a subscription
+     * that would cause that ICD to not need to check in anymore.
      *
-     *  If the subscription is not in the `InactiveICDSubscription` state, this function will do nothing. So it is always safe to
-     * call this function when a check-in message is received.
+     *  This API only works when issuing subscription via SendAutoResubscribeRequest.
      */
     void OnActiveModeNotification();
 
@@ -612,7 +613,7 @@ private:
 
     static void HandleDeviceConnected(void * context, Messaging::ExchangeManager & exchangeMgr,
                                       const SessionHandle & sessionHandle);
-    static void HandleDeviceConnectionFailure(void * context, const ScopedNodeId & peerId, CHIP_ERROR error);
+    static void HandleDeviceConnectionFailure(void * context, const OperationalSessionSetup::ConnectionFailureInfo & failureInfo);
 
     CHIP_ERROR GetMinEventNumber(const ReadPrepareParams & aReadPrepareParams, Optional<EventNumber> & aEventMin);
 
@@ -642,8 +643,12 @@ private:
     bool mForceCaseOnNextResub      = true;
     bool mIsResubscriptionScheduled = false;
 
+    // mMinimalResubscribeDelay is used to store the delay returned with a BUSY
+    // response to a Sigma1 message.
+    System::Clock::Milliseconds16 mMinimalResubscribeDelay = System::Clock::kZero;
+
     chip::Callback::Callback<OnDeviceConnected> mOnConnectedCallback;
-    chip::Callback::Callback<OnDeviceConnectionFailure> mOnConnectionFailureCallback;
+    chip::Callback::Callback<OperationalSessionSetup::OnSetupFailure> mOnConnectionFailureCallback;
 
     ReadClient * mpNext                 = nullptr;
     InteractionModelEngine * mpImEngine = nullptr;

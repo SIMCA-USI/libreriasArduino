@@ -35,11 +35,13 @@
 #ifndef OPENTHREAD_PLATFORM_RADIO_H_
 #define OPENTHREAD_PLATFORM_RADIO_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include <openthread/error.h>
 #include <openthread/instance.h>
 #include <openthread/platform/crypto.h>
+#include <openthread/platform/toolchain.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,6 +84,9 @@ enum
     OT_RADIO_LQI_NONE      = 0,   ///< LQI measurement not supported
     OT_RADIO_RSSI_INVALID  = 127, ///< Invalid or unknown RSSI value
     OT_RADIO_POWER_INVALID = 127, ///< Invalid or unknown power value
+
+    OT_RADIO_INVALID_SHORT_ADDR   = 0xfffe, ///< Invalid short address.
+    OT_RADIO_BROADCAST_SHORT_ADDR = 0xffff, ///< Broadcast short address.
 };
 
 /**
@@ -120,17 +125,18 @@ typedef uint16_t otRadioCaps;
  */
 enum
 {
-    OT_RADIO_CAPS_NONE                 = 0,      ///< Radio supports no capability.
-    OT_RADIO_CAPS_ACK_TIMEOUT          = 1 << 0, ///< Radio supports AckTime event.
-    OT_RADIO_CAPS_ENERGY_SCAN          = 1 << 1, ///< Radio supports Energy Scans.
-    OT_RADIO_CAPS_TRANSMIT_RETRIES     = 1 << 2, ///< Radio supports tx retry logic with collision avoidance (CSMA).
-    OT_RADIO_CAPS_CSMA_BACKOFF         = 1 << 3, ///< Radio supports CSMA backoff for frame transmission (but no retry).
-    OT_RADIO_CAPS_SLEEP_TO_TX          = 1 << 4, ///< Radio supports direct transition from sleep to TX with CSMA.
-    OT_RADIO_CAPS_TRANSMIT_SEC         = 1 << 5, ///< Radio supports tx security.
-    OT_RADIO_CAPS_TRANSMIT_TIMING      = 1 << 6, ///< Radio supports tx at specific time.
-    OT_RADIO_CAPS_RECEIVE_TIMING       = 1 << 7, ///< Radio supports rx at specific time.
-    OT_RADIO_CAPS_RX_ON_WHEN_IDLE      = 1 << 8, ///< Radio supports RxOnWhenIdle handling.
-    OT_RADIO_CAPS_TRANSMIT_FRAME_POWER = 1 << 9, ///< Radio supports setting per-frame transmit power.
+    OT_RADIO_CAPS_NONE                 = 0,       ///< Radio supports no capability.
+    OT_RADIO_CAPS_ACK_TIMEOUT          = 1 << 0,  ///< Radio supports AckTime event.
+    OT_RADIO_CAPS_ENERGY_SCAN          = 1 << 1,  ///< Radio supports Energy Scans.
+    OT_RADIO_CAPS_TRANSMIT_RETRIES     = 1 << 2,  ///< Radio supports tx retry logic with collision avoidance (CSMA).
+    OT_RADIO_CAPS_CSMA_BACKOFF         = 1 << 3,  ///< Radio supports CSMA backoff for frame tx (but no retry).
+    OT_RADIO_CAPS_SLEEP_TO_TX          = 1 << 4,  ///< Radio supports direct transition from sleep to TX with CSMA.
+    OT_RADIO_CAPS_TRANSMIT_SEC         = 1 << 5,  ///< Radio supports tx security.
+    OT_RADIO_CAPS_TRANSMIT_TIMING      = 1 << 6,  ///< Radio supports tx at specific time.
+    OT_RADIO_CAPS_RECEIVE_TIMING       = 1 << 7,  ///< Radio supports rx at specific time.
+    OT_RADIO_CAPS_RX_ON_WHEN_IDLE      = 1 << 8,  ///< Radio supports RxOnWhenIdle handling.
+    OT_RADIO_CAPS_TRANSMIT_FRAME_POWER = 1 << 9,  ///< Radio supports setting per-frame transmit power.
+    OT_RADIO_CAPS_ALT_SHORT_ADDR       = 1 << 10, ///< Radio supports setting alternate short address.
 };
 
 #define OT_PANID_BROADCAST 0xffff ///< IEEE 802.15.4 Broadcast PAN ID
@@ -262,6 +268,10 @@ typedef struct otRadioFrame
              * The base time in microseconds for scheduled transmissions
              * relative to the local radio clock, see `otPlatRadioGetNow` and
              * `mTxDelay`.
+             *
+             * If this field is non-zero, `mMaxCsmaBackoffs` should be ignored.
+             *
+             * This field does not affect CCA behavior which is controlled by `mCsmaCaEnabled`.
              */
             uint32_t mTxDelayBaseTime;
 
@@ -272,10 +282,27 @@ typedef struct otRadioFrame
              * Note: `mTxDelayBaseTime` + `mTxDelay` SHALL point to the point in
              * time when the end of the SFD will be present at the local
              * antenna, relative to the local radio clock.
+             *
+             * If this field is non-zero, `mMaxCsmaBackoffs` should be ignored.
+             *
+             * This field does not affect CCA behavior which is controlled by `mCsmaCaEnabled`.
              */
             uint32_t mTxDelay;
 
-            uint8_t mMaxCsmaBackoffs; ///< Maximum number of backoffs attempts before declaring CCA failure.
+            /**
+             * Maximum number of CSMA backoff attempts before declaring channel access failure.
+             *
+             * This is applicable and MUST be used when radio platform provides the `OT_RADIO_CAPS_CSMA_BACKOFF` and/or
+             * `OT_RADIO_CAPS_TRANSMIT_RETRIES`.
+             *
+             * This field MUST be ignored if `mCsmaCaEnabled` is set to `false` (CCA is disabled) or
+             * either `mTxDelayBaseTime` or `mTxDelay` is non-zero (frame transmission is expected at a specific time).
+             *
+             * It can be set to `0` to skip backoff mechanism (note that CCA MUST still be performed assuming
+             * `mCsmaCaEnabled` is `true`).
+             */
+            uint8_t mMaxCsmaBackoffs;
+
             uint8_t mMaxFrameRetries; ///< Maximum number of retries allowed after a transmission failure.
 
             /**
@@ -337,8 +364,14 @@ typedef struct otRadioFrame
              * it must also set this flag before passing the frame back from the `otPlatRadioTxDone()` callback.
              */
             bool mIsHeaderUpdated : 1;
-            bool mIsARetx : 1;             ///< Indicates whether the frame is a retransmission or not.
-            bool mCsmaCaEnabled : 1;       ///< Set to true to enable CSMA-CA for this packet, false otherwise.
+            bool mIsARetx : 1; ///< Indicates whether the frame is a retransmission or not.
+            /**
+             * Set to true to enable CSMA-CA for this packet, false to disable both CSMA backoff and CCA.
+             *
+             * When it is set to `false`, the frame MUST be sent without performing CCA. In this case `mMaxCsmaBackoffs`
+             * MUST also be ignored.
+             */
+            bool mCsmaCaEnabled : 1;
             bool mCslPresent : 1;          ///< Set to true if CSL header IE is present.
             bool mIsSecurityProcessed : 1; ///< True if SubMac should skip the AES processing of this frame.
 
@@ -518,6 +551,26 @@ void otPlatRadioSetExtendedAddress(otInstance *aInstance, const otExtAddress *aE
 void otPlatRadioSetShortAddress(otInstance *aInstance, otShortAddress aShortAddress);
 
 /**
+ * Set the alternate short address.
+ *
+ * This is an optional radio platform API. The radio platform MUST indicate support for this API by including the
+ * capability `OT_RADIO_CAPS_ALT_SHORT_ADDR` in `otPlatRadioGetCaps()`.
+ *
+ * When supported, the radio should accept received frames destined to the specified alternate short address in
+ * addition to the short address provided in `otPlatRadioSetShortAddress()`.
+ *
+ * The @p aShortAddress can be set to `OT_RADIO_INVALID_SHORT_ADDR` (0xfffe) to clear any previously set alternate
+ * short address.
+ *
+ * This function is used by OpenThread stack during child-to-router role transitions, allowing the device to continue
+ * receiving frames addressed to its previous short address for a short period.
+ *
+ * @param[in] aInstance      The OpenThread instance structure.
+ * @param[in] aShortAddress  The alternate IEEE 802.15.4 short address. `OT_RADIO_INVALID_SHORT_ADDR` to clear.
+ */
+void otPlatRadioSetAlternateShortAddress(otInstance *aInstance, otShortAddress aShortAddress);
+
+/**
  * Get the radio's transmit power in dBm.
  *
  * @note The transmit power returned will be no larger than the power specified in the max power table for
@@ -650,6 +703,10 @@ void otPlatRadioSetRxOnWhenIdle(otInstance *aInstance, bool aEnable);
  * Update MAC keys and key index
  *
  * Is used when radio provides OT_RADIO_CAPS_TRANSMIT_SEC capability.
+ *
+ * The radio platform should reset the current security MAC frame counter tracked by the radio on this call. While this
+ * is highly recommended, the OpenThread stack, as a safeguard, will also reset the frame counter using the
+ * `otPlatRadioSetMacFrameCounter()` before calling this API.
  *
  * @param[in]   aInstance    A pointer to an OpenThread instance.
  * @param[in]   aKeyIdMode   The key ID mode.
@@ -810,6 +867,17 @@ otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel);
 /**
  * Schedule a radio reception window at a specific time and duration.
  *
+ * After a radio reception is successfully scheduled for a future time and duration, a subsequent call to this
+ * function MUST be handled as follows:
+ *
+ * - If the start time of the previously scheduled reception window has not yet been reached, the new call to
+ *   `otPlatRadioReceiveAt()` MUST cancel the previous schedule, effectively replacing it.
+ *
+ * - If the start of the previous window has already passed, the previous receive schedule is already being executed
+ *   by the radio and MUST NOT be replaced or impacted. The new call to `otPlatRadioReceiveAt()` would then schedule
+ *   a new future receive window. In particular, if the new `otPlatRadioReceiveAt()` call occurs after the start
+ *   but while still within the previous reception window, the ongoing reception window MUST NOT be impacted.
+ *
  * @param[in]  aChannel   The radio channel on which to receive.
  * @param[in]  aStart     The receive window start time relative to the local
  *                        radio clock, see `otPlatRadioGetNow`. The radio
@@ -824,12 +892,12 @@ otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel);
  *                        reception has either succeeded or failed.
  *
  * @retval OT_ERROR_NONE    Successfully scheduled receive window.
- * @retval OT_ERROR_FAILED  The receive window could not be scheduled.
+ * @retval OT_ERROR_FAILED  The receive window could not be scheduled. For example, if @p aStart is in the past.
  */
 otError otPlatRadioReceiveAt(otInstance *aInstance, uint8_t aChannel, uint32_t aStart, uint32_t aDuration);
 
 /**
- * The radio driver calls this method to notify OpenThread of a received frame.
+ * The radio driver calls this function to notify OpenThread of a received frame.
  *
  * @param[in]  aInstance The OpenThread instance structure.
  * @param[in]  aFrame    A pointer to the received frame or NULL if the receive operation failed.
@@ -840,7 +908,7 @@ otError otPlatRadioReceiveAt(otInstance *aInstance, uint8_t aChannel, uint32_t a
 extern void otPlatRadioReceiveDone(otInstance *aInstance, otRadioFrame *aFrame, otError aError);
 
 /**
- * The radio driver calls this method to notify OpenThread diagnostics module of a received frame.
+ * The radio driver calls this function to notify OpenThread diagnostics module of a received frame.
  *
  * Is used when diagnostics is enabled.
  *
@@ -884,7 +952,7 @@ otRadioFrame *otPlatRadioGetTransmitBuffer(otInstance *aInstance);
 otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame);
 
 /**
- * The radio driver calls this method to notify OpenThread that the transmission has started.
+ * The radio driver calls this function to notify OpenThread that the transmission has started.
  *
  * @note  This function should be called by the same thread that executes all of the other OpenThread code. It should
  *        not be called by ISR or any other task.
@@ -912,7 +980,7 @@ extern void otPlatRadioTxStarted(otInstance *aInstance, otRadioFrame *aFrame);
 extern void otPlatRadioTxDone(otInstance *aInstance, otRadioFrame *aFrame, otRadioFrame *aAckFrame, otError aError);
 
 /**
- * The radio driver calls this method to notify OpenThread diagnostics module that the transmission has completed.
+ * The radio driver calls this function to notify OpenThread diagnostics module that the transmission has completed.
  *
  * Is used when diagnostics is enabled.
  *
@@ -925,11 +993,14 @@ extern void otPlatRadioTxDone(otInstance *aInstance, otRadioFrame *aFrame, otRad
 extern void otPlatDiagRadioTransmitDone(otInstance *aInstance, otRadioFrame *aFrame, otError aError);
 
 /**
- * Get the most recent RSSI measurement.
+ * Return a recent RSSI measurement when the radio is in receive state.
  *
- * @param[in] aInstance  The OpenThread instance structure.
+ * If the radio is not in receive state, then `OT_RADIO_RSSI_INVALID` MUST be returned. If the radio is in receive
+ * state, then a single RSSI measurement is taken on the current receive channel and returned.
  *
- * @returns The RSSI in dBm when it is valid.  127 when RSSI is invalid.
+ * @param[in] aInstance The OpenThread instance structure.
+ *
+ * @returns The RSSI in dBm when it is valid. `OT_RADIO_RSSI_INVALID` when RSSI is invalid.
  */
 int8_t otPlatRadioGetRssi(otInstance *aInstance);
 
@@ -949,7 +1020,7 @@ int8_t otPlatRadioGetRssi(otInstance *aInstance);
 otError otPlatRadioEnergyScan(otInstance *aInstance, uint8_t aScanChannel, uint16_t aScanDuration);
 
 /**
- * The radio driver calls this method to notify OpenThread that the energy scan is complete.
+ * The radio driver calls this function to notify OpenThread that the energy scan is complete.
  *
  * Is used when radio provides OT_RADIO_CAPS_ENERGY_SCAN capability.
  *
@@ -959,7 +1030,7 @@ otError otPlatRadioEnergyScan(otInstance *aInstance, uint8_t aScanChannel, uint1
 extern void otPlatRadioEnergyScanDone(otInstance *aInstance, int8_t aEnergyScanMaxRssi);
 
 /**
- * The radio driver calls this method to notify OpenThread that the spinel bus latency has been changed.
+ * The radio driver calls this function to notify OpenThread that the spinel bus latency has been changed.
  *
  * @param[in]  aInstance  The OpenThread instance structure.
  */
@@ -1100,10 +1171,15 @@ otError otPlatRadioGetCoexMetrics(otInstance *aInstance, otRadioCoexMetrics *aCo
 /**
  * Enable or disable CSL receiver.
  *
+ * Regarding @p aExtAddr, this function assumes big-endian byte order. Note that this differs from
+ * `otPlatRadioSetExtendedAddress()`, `otPlatRadioAddSrcMatchExtEntry()`, and `otPlatRadioClearSrcMatchExtEntry()`,
+ * which use little-endian byte order for the Extended MAC address.
+ *
  * @param[in]  aInstance     The OpenThread instance structure.
  * @param[in]  aCslPeriod    CSL period, 0 for disabling CSL. CSL period is in unit of 10 symbols.
  * @param[in]  aShortAddr    The short source address of CSL receiver's peer.
- * @param[in]  aExtAddr      The extended source address of CSL receiver's peer.
+ * @param[in]  aExtAddr      The extended source address of CSL receiver's peer. The @p aExtAddr assumes big-endian
+ *                           byte order.
  *
  * @note Platforms should use CSL peer addresses to include CSL IE when generating enhanced acks.
  *
@@ -1119,7 +1195,7 @@ otError otPlatRadioEnableCsl(otInstance         *aInstance,
 /**
  * Reset CSL receiver in the platform.
  *
- * @note Defaults to `otPlatRadioEnableCsl(aInstance,0, Mac::kShortAddrInvalid, nullptr);`
+ * @note Defaults to `otPlatRadioEnableCsl(aInstance,0, Mac::kShortAddrInvalid, NULL);`
  *
  * @param[in]  aInstance     The OpenThread instance structure.
  *
@@ -1224,7 +1300,7 @@ otError otPlatRadioSetRegion(otInstance *aInstance, uint16_t aRegionCode);
  * @param[in]  aInstance    The OpenThread instance structure.
  * @param[out] aRegionCode  The radio region.
  *
- * @retval  OT_ERROR_INVALID_ARGS     @p aRegionCode is nullptr.
+ * @retval  OT_ERROR_INVALID_ARGS     @p aRegionCode is NULL.
  * @retval  OT_ERROR_FAILED           Other platform specific errors.
  * @retval  OT_ERROR_NONE             Successfully got region code.
  * @retval  OT_ERROR_NOT_IMPLEMENTED  The feature is not implemented.
@@ -1235,15 +1311,20 @@ otError otPlatRadioGetRegion(otInstance *aInstance, uint16_t *aRegionCode);
  * Enable/disable or update Enhanced-ACK Based Probing in radio for a specific Initiator.
  *
  * After Enhanced-ACK Based Probing is configured by a specific Probing Initiator, the Enhanced-ACK sent to that
- * node should include Vendor-Specific IE containing Link Metrics data. This method informs the radio to start/stop to
+ * node should include Vendor-Specific IE containing Link Metrics data. This function informs the radio to start/stop to
  * collect Link Metrics data and include Vendor-Specific IE that containing the data in Enhanced-ACK sent to that
  * Probing Initiator.
+ *
+ * Regarding @p aExtAddress, this function assumes big-endian byte order. Note that this differs from
+ * `otPlatRadioSetExtendedAddress()`, `otPlatRadioAddSrcMatchExtEntry()`, and `otPlatRadioClearSrcMatchExtEntry()`,
+ * which use little-endian byte order for the Extended MAC address.
  *
  * @param[in]  aInstance     The OpenThread instance structure.
  * @param[in]  aLinkMetrics  This parameter specifies what metrics to query. Per spec 4.11.3.4.4.6, at most 2 metrics
  *                           can be specified. The probing would be disabled if @p `aLinkMetrics` is bitwise 0.
  * @param[in]  aShortAddress The short address of the Probing Initiator.
- * @param[in]  aExtAddress   The extended source address of the Probing Initiator. @p aExtAddr MUST NOT be `NULL`.
+ * @param[in]  aExtAddress   The extended source address of the Probing Initiator. @p aExtAddress MUST NOT be `NULL`.
+ *                           The @p aExtAddress assumes big-endian byte order.
  *
  * @retval  OT_ERROR_NONE            Successfully configured the Enhanced-ACK Based Probing.
  * @retval  OT_ERROR_INVALID_ARGS    @p aExtAddress is `NULL`.

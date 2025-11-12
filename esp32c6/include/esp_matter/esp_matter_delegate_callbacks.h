@@ -22,6 +22,7 @@ void DishWasherModeDelegateInitCB(void *delegate, uint16_t endpoint_id);
 void RefrigeratorAndTCCModeDelegateInitCB(void *delegate, uint16_t endpoint_id);
 void RvcRunModeDelegateInitCB(void *delegate, uint16_t endpoint_id);
 void RvcCleanModeDelegateInitCB(void *delegate, uint16_t endpoint_id);
+void WaterHeaterModeDelegateInitCB(void *delegate, uint16_t endpoint_id);
 void EnergyEvseModeDelegateInitCB(void *delegate, uint16_t endpoint_id);
 void EnergyEvseDelegateInitCB(void *delegate, uint16_t endpoint_id);
 void MicrowaveOvenModeDelegateInitCB(void *delegate, uint16_t endpoint_id);
@@ -40,6 +41,16 @@ void TimeSynchronizationDelegateInitCB(void *delegate, uint16_t endpoint_id);
 void ApplicationBasicDelegateInitCB(void *delegate, uint16_t endpoint_id);
 void PowerTopologyDelegateInitCB(void *delegate, uint16_t endpoint_id);
 void ElectricalPowerMeasurementDelegateInitCB(void *delegate, uint16_t endpoint_id);
+void LaundryWasherControlsDelegateInitCB(void *delegate, uint16_t endpoint_id);
+void WindowCoveringDelegateInitCB(void *delegate, uint16_t endpoint_id);
+void DishwasherAlarmDelegateInitCB(void *delegate, uint16_t endpoint_id);
+void KeypadInputDelegateInitCB(void *delegate, uint16_t endpoint_id);
+void ModeSelectDelegateInitCB(void *delegate, uint16_t endpoint_id);
+void ThreadBorderRouterManagementDelegateInitCB(void *delegate, uint16_t endpoint_id);
+void ServiceAreaDelegateInitCB(void *delegate, uint16_t endpoint_id);
+void WaterHeaterManagementDelegateInitCB(void *delegate, uint16_t endpoint_id);
+void EnergyPreferenceDelegateInitCB(void *delegate, uint16_t endpoint_id);
+void CommissionerControlDelegateInitCB(void *delegate, uint16_t endpoint_id);
 } // namespace delegate_cb
 
 } // namespace cluster

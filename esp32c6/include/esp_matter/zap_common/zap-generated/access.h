@@ -11,6 +11,11 @@
 #define GENERATED_ACCESS_READ_ATTRIBUTE__CLUSTER { \
     0x0000001F, /* Cluster: Access Control, Attribute: ACL, Privilege: administer */ \
     0x0000001F, /* Cluster: Access Control, Attribute: Extension, Privilege: administer */ \
+    0x00000030, /* Cluster: General Commissioning, Attribute: TCAcceptedVersion, Privilege: administer */ \
+    0x00000030, /* Cluster: General Commissioning, Attribute: TCMinRequiredVersion, Privilege: administer */ \
+    0x00000030, /* Cluster: General Commissioning, Attribute: TCAcknowledgements, Privilege: administer */ \
+    0x00000030, /* Cluster: General Commissioning, Attribute: TCAcknowledgementsRequired, Privilege: administer */ \
+    0x00000030, /* Cluster: General Commissioning, Attribute: TCUpdateDeadline, Privilege: administer */ \
     0x00000031, /* Cluster: Network Commissioning, Attribute: MaxNetworks, Privilege: administer */ \
     0x00000031, /* Cluster: Network Commissioning, Attribute: Networks, Privilege: administer */ \
     0x00000031, /* Cluster: Network Commissioning, Attribute: LastNetworkingStatus, Privilege: administer */ \
@@ -26,13 +31,24 @@
     0x00000101, /* Cluster: Door Lock, Attribute: AliroGroupResolvingKey, Privilege: administer */ \
     0x00000101, /* Cluster: Door Lock, Attribute: AliroSupportedBLEUWBProtocolVersions, Privilege: administer */ \
     0x00000101, /* Cluster: Door Lock, Attribute: AliroBLEAdvertisingVersion, Privilege: administer */ \
+    0x00000451, /* Cluster: Wi-Fi Network Management, Attribute: PassphraseSurrogate, Privilege: manage */ \
+    0x00000453, /* Cluster: Thread Network Directory, Attribute: PreferredExtendedPanID, Privilege: manage */ \
+    0x00000453, /* Cluster: Thread Network Directory, Attribute: ThreadNetworks, Privilege: operate */ \
     0x0000050D, /* Cluster: Application Basic, Attribute: AllowedVendorList, Privilege: administer */ \
+    0x00000750, /* Cluster: Ecosystem Information, Attribute: DeviceDirectory, Privilege: manage */ \
+    0x00000750, /* Cluster: Ecosystem Information, Attribute: LocationDirectory, Privilege: manage */ \
+    0x00000751, /* Cluster: Commissioner Control, Attribute: SupportedDeviceCategories, Privilege: manage */ \
 }
 
 // Parallel array data (cluster, *attribute*, privilege) for read attribute
 #define GENERATED_ACCESS_READ_ATTRIBUTE__ATTRIBUTE { \
     0x00000000, /* Cluster: Access Control, Attribute: ACL, Privilege: administer */ \
     0x00000001, /* Cluster: Access Control, Attribute: Extension, Privilege: administer */ \
+    0x00000005, /* Cluster: General Commissioning, Attribute: TCAcceptedVersion, Privilege: administer */ \
+    0x00000006, /* Cluster: General Commissioning, Attribute: TCMinRequiredVersion, Privilege: administer */ \
+    0x00000007, /* Cluster: General Commissioning, Attribute: TCAcknowledgements, Privilege: administer */ \
+    0x00000008, /* Cluster: General Commissioning, Attribute: TCAcknowledgementsRequired, Privilege: administer */ \
+    0x00000009, /* Cluster: General Commissioning, Attribute: TCUpdateDeadline, Privilege: administer */ \
     0x00000000, /* Cluster: Network Commissioning, Attribute: MaxNetworks, Privilege: administer */ \
     0x00000001, /* Cluster: Network Commissioning, Attribute: Networks, Privilege: administer */ \
     0x00000005, /* Cluster: Network Commissioning, Attribute: LastNetworkingStatus, Privilege: administer */ \
@@ -48,13 +64,24 @@
     0x00000084, /* Cluster: Door Lock, Attribute: AliroGroupResolvingKey, Privilege: administer */ \
     0x00000085, /* Cluster: Door Lock, Attribute: AliroSupportedBLEUWBProtocolVersions, Privilege: administer */ \
     0x00000086, /* Cluster: Door Lock, Attribute: AliroBLEAdvertisingVersion, Privilege: administer */ \
+    0x00000001, /* Cluster: Wi-Fi Network Management, Attribute: PassphraseSurrogate, Privilege: manage */ \
+    0x00000000, /* Cluster: Thread Network Directory, Attribute: PreferredExtendedPanID, Privilege: manage */ \
+    0x00000001, /* Cluster: Thread Network Directory, Attribute: ThreadNetworks, Privilege: operate */ \
     0x00000007, /* Cluster: Application Basic, Attribute: AllowedVendorList, Privilege: administer */ \
+    0x00000000, /* Cluster: Ecosystem Information, Attribute: DeviceDirectory, Privilege: manage */ \
+    0x00000001, /* Cluster: Ecosystem Information, Attribute: LocationDirectory, Privilege: manage */ \
+    0x00000000, /* Cluster: Commissioner Control, Attribute: SupportedDeviceCategories, Privilege: manage */ \
 }
 
 // Parallel array data (cluster, attribute, *privilege*) for read attribute
 #define GENERATED_ACCESS_READ_ATTRIBUTE__PRIVILEGE { \
     chip::Access::Privilege::kAdminister, /* Cluster: Access Control, Attribute: ACL, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Access Control, Attribute: Extension, Privilege: administer */ \
+    chip::Access::Privilege::kAdminister, /* Cluster: General Commissioning, Attribute: TCAcceptedVersion, Privilege: administer */ \
+    chip::Access::Privilege::kAdminister, /* Cluster: General Commissioning, Attribute: TCMinRequiredVersion, Privilege: administer */ \
+    chip::Access::Privilege::kAdminister, /* Cluster: General Commissioning, Attribute: TCAcknowledgements, Privilege: administer */ \
+    chip::Access::Privilege::kAdminister, /* Cluster: General Commissioning, Attribute: TCAcknowledgementsRequired, Privilege: administer */ \
+    chip::Access::Privilege::kAdminister, /* Cluster: General Commissioning, Attribute: TCUpdateDeadline, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Network Commissioning, Attribute: MaxNetworks, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Network Commissioning, Attribute: Networks, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Network Commissioning, Attribute: LastNetworkingStatus, Privilege: administer */ \
@@ -70,7 +97,13 @@
     chip::Access::Privilege::kAdminister, /* Cluster: Door Lock, Attribute: AliroGroupResolvingKey, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Door Lock, Attribute: AliroSupportedBLEUWBProtocolVersions, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Door Lock, Attribute: AliroBLEAdvertisingVersion, Privilege: administer */ \
+    chip::Access::Privilege::kManage, /* Cluster: Wi-Fi Network Management, Attribute: PassphraseSurrogate, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Thread Network Directory, Attribute: PreferredExtendedPanID, Privilege: manage */ \
+    chip::Access::Privilege::kOperate, /* Cluster: Thread Network Directory, Attribute: ThreadNetworks, Privilege: operate */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Application Basic, Attribute: AllowedVendorList, Privilege: administer */ \
+    chip::Access::Privilege::kManage, /* Cluster: Ecosystem Information, Attribute: DeviceDirectory, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Ecosystem Information, Attribute: LocationDirectory, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Commissioner Control, Attribute: SupportedDeviceCategories, Privilege: manage */ \
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,6 +203,7 @@
     0x00000301, /* Cluster: Ballast Configuration, Attribute: LampBurnHours, Privilege: manage */ \
     0x00000301, /* Cluster: Ballast Configuration, Attribute: LampAlarmMode, Privilege: manage */ \
     0x00000301, /* Cluster: Ballast Configuration, Attribute: LampBurnHoursTripPoint, Privilege: manage */ \
+    0x00000406, /* Cluster: Occupancy Sensing, Attribute: HoldTime, Privilege: manage */ \
     0x00000406, /* Cluster: Occupancy Sensing, Attribute: PIROccupiedToUnoccupiedDelay, Privilege: manage */ \
     0x00000406, /* Cluster: Occupancy Sensing, Attribute: PIRUnoccupiedToOccupiedDelay, Privilege: manage */ \
     0x00000406, /* Cluster: Occupancy Sensing, Attribute: PIRUnoccupiedToOccupiedThreshold, Privilege: manage */ \
@@ -179,6 +213,7 @@
     0x00000406, /* Cluster: Occupancy Sensing, Attribute: PhysicalContactOccupiedToUnoccupiedDelay, Privilege: manage */ \
     0x00000406, /* Cluster: Occupancy Sensing, Attribute: PhysicalContactUnoccupiedToOccupiedDelay, Privilege: manage */ \
     0x00000406, /* Cluster: Occupancy Sensing, Attribute: PhysicalContactUnoccupiedToOccupiedThreshold, Privilege: manage */ \
+    0x00000453, /* Cluster: Thread Network Directory, Attribute: PreferredExtendedPanID, Privilege: manage */ \
 }
 
 // Parallel array data (cluster, *attribute*, privilege) for write attribute
@@ -276,6 +311,7 @@
     0x00000033, /* Cluster: Ballast Configuration, Attribute: LampBurnHours, Privilege: manage */ \
     0x00000034, /* Cluster: Ballast Configuration, Attribute: LampAlarmMode, Privilege: manage */ \
     0x00000035, /* Cluster: Ballast Configuration, Attribute: LampBurnHoursTripPoint, Privilege: manage */ \
+    0x00000003, /* Cluster: Occupancy Sensing, Attribute: HoldTime, Privilege: manage */ \
     0x00000010, /* Cluster: Occupancy Sensing, Attribute: PIROccupiedToUnoccupiedDelay, Privilege: manage */ \
     0x00000011, /* Cluster: Occupancy Sensing, Attribute: PIRUnoccupiedToOccupiedDelay, Privilege: manage */ \
     0x00000012, /* Cluster: Occupancy Sensing, Attribute: PIRUnoccupiedToOccupiedThreshold, Privilege: manage */ \
@@ -285,6 +321,7 @@
     0x00000030, /* Cluster: Occupancy Sensing, Attribute: PhysicalContactOccupiedToUnoccupiedDelay, Privilege: manage */ \
     0x00000031, /* Cluster: Occupancy Sensing, Attribute: PhysicalContactUnoccupiedToOccupiedDelay, Privilege: manage */ \
     0x00000032, /* Cluster: Occupancy Sensing, Attribute: PhysicalContactUnoccupiedToOccupiedThreshold, Privilege: manage */ \
+    0x00000000, /* Cluster: Thread Network Directory, Attribute: PreferredExtendedPanID, Privilege: manage */ \
 }
 
 // Parallel array data (cluster, attribute, *privilege*) for write attribute
@@ -382,6 +419,7 @@
     chip::Access::Privilege::kManage, /* Cluster: Ballast Configuration, Attribute: LampBurnHours, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Ballast Configuration, Attribute: LampAlarmMode, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Ballast Configuration, Attribute: LampBurnHoursTripPoint, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Occupancy Sensing, Attribute: HoldTime, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Occupancy Sensing, Attribute: PIROccupiedToUnoccupiedDelay, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Occupancy Sensing, Attribute: PIRUnoccupiedToOccupiedDelay, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Occupancy Sensing, Attribute: PIRUnoccupiedToOccupiedThreshold, Privilege: manage */ \
@@ -391,6 +429,7 @@
     chip::Access::Privilege::kManage, /* Cluster: Occupancy Sensing, Attribute: PhysicalContactOccupiedToUnoccupiedDelay, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Occupancy Sensing, Attribute: PhysicalContactUnoccupiedToOccupiedDelay, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Occupancy Sensing, Attribute: PhysicalContactUnoccupiedToOccupiedThreshold, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Thread Network Directory, Attribute: PreferredExtendedPanID, Privilege: manage */ \
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -403,9 +442,11 @@
     0x00000004, /* Cluster: Groups, Command: RemoveGroup, Privilege: manage */ \
     0x00000004, /* Cluster: Groups, Command: RemoveAllGroups, Privilege: manage */ \
     0x00000004, /* Cluster: Groups, Command: AddGroupIfIdentifying, Privilege: manage */ \
+    0x0000001F, /* Cluster: Access Control, Command: ReviewFabricRestrictions, Privilege: administer */ \
     0x00000030, /* Cluster: General Commissioning, Command: ArmFailSafe, Privilege: administer */ \
     0x00000030, /* Cluster: General Commissioning, Command: SetRegulatoryConfig, Privilege: administer */ \
     0x00000030, /* Cluster: General Commissioning, Command: CommissioningComplete, Privilege: administer */ \
+    0x00000030, /* Cluster: General Commissioning, Command: SetTCAcknowledgements, Privilege: administer */ \
     0x00000031, /* Cluster: Network Commissioning, Command: ScanNetworks, Privilege: administer */ \
     0x00000031, /* Cluster: Network Commissioning, Command: AddOrUpdateWiFiNetwork, Privilege: administer */ \
     0x00000031, /* Cluster: Network Commissioning, Command: AddOrUpdateThreadNetwork, Privilege: administer */ \
@@ -444,6 +485,8 @@
     0x00000062, /* Cluster: Scenes Management, Command: RemoveScene, Privilege: manage */ \
     0x00000062, /* Cluster: Scenes Management, Command: RemoveAllScenes, Privilege: manage */ \
     0x00000062, /* Cluster: Scenes Management, Command: StoreScene, Privilege: manage */ \
+    0x00000094, /* Cluster: Water Heater Management, Command: Boost, Privilege: manage */ \
+    0x00000094, /* Cluster: Water Heater Management, Command: CancelBoost, Privilege: manage */ \
     0x00000101, /* Cluster: Door Lock, Command: SetWeekDaySchedule, Privilege: administer */ \
     0x00000101, /* Cluster: Door Lock, Command: GetWeekDaySchedule, Privilege: administer */ \
     0x00000101, /* Cluster: Door Lock, Command: ClearWeekDaySchedule, Privilege: administer */ \
@@ -463,14 +506,20 @@
     0x00000101, /* Cluster: Door Lock, Command: ClearAliroReaderConfig, Privilege: administer */ \
     0x00000201, /* Cluster: Thermostat, Command: SetWeeklySchedule, Privilege: manage */ \
     0x00000201, /* Cluster: Thermostat, Command: ClearWeeklySchedule, Privilege: manage */ \
-    0x00000201, /* Cluster: Thermostat, Command: StartPresetsSchedulesEditRequest, Privilege: manage */ \
-    0x00000201, /* Cluster: Thermostat, Command: CancelPresetsSchedulesEditRequest, Privilege: manage */ \
-    0x00000201, /* Cluster: Thermostat, Command: CommitPresetsSchedulesRequest, Privilege: manage */ \
-    0x00000201, /* Cluster: Thermostat, Command: CancelSetActivePresetRequest, Privilege: manage */ \
+    0x00000201, /* Cluster: Thermostat, Command: AtomicRequest, Privilege: manage */ \
+    0x00000451, /* Cluster: Wi-Fi Network Management, Command: NetworkPassphraseRequest, Privilege: manage */ \
+    0x00000452, /* Cluster: Thread Border Router Management, Command: GetActiveDatasetRequest, Privilege: manage */ \
+    0x00000452, /* Cluster: Thread Border Router Management, Command: GetPendingDatasetRequest, Privilege: manage */ \
+    0x00000452, /* Cluster: Thread Border Router Management, Command: SetActiveDatasetRequest, Privilege: manage */ \
+    0x00000452, /* Cluster: Thread Border Router Management, Command: SetPendingDatasetRequest, Privilege: manage */ \
+    0x00000453, /* Cluster: Thread Network Directory, Command: AddNetwork, Privilege: manage */ \
+    0x00000453, /* Cluster: Thread Network Directory, Command: RemoveNetwork, Privilege: manage */ \
     0x00000507, /* Cluster: Media Input, Command: RenameInput, Privilege: manage */ \
     0x0000050B, /* Cluster: Audio Output, Command: RenameOutput, Privilege: manage */ \
     0x0000050E, /* Cluster: Account Login, Command: GetSetupPIN, Privilege: administer */ \
     0x0000050E, /* Cluster: Account Login, Command: Login, Privilege: administer */ \
+    0x00000751, /* Cluster: Commissioner Control, Command: RequestCommissioningApproval, Privilege: manage */ \
+    0x00000751, /* Cluster: Commissioner Control, Command: CommissionNode, Privilege: manage */ \
     0xFFF1FC06, /* Cluster: Fault Injection, Command: FailAtFault, Privilege: manage */ \
     0xFFF1FC06, /* Cluster: Fault Injection, Command: FailRandomlyAtFault, Privilege: manage */ \
 }
@@ -483,9 +532,11 @@
     0x00000003, /* Cluster: Groups, Command: RemoveGroup, Privilege: manage */ \
     0x00000004, /* Cluster: Groups, Command: RemoveAllGroups, Privilege: manage */ \
     0x00000005, /* Cluster: Groups, Command: AddGroupIfIdentifying, Privilege: manage */ \
+    0x00000000, /* Cluster: Access Control, Command: ReviewFabricRestrictions, Privilege: administer */ \
     0x00000000, /* Cluster: General Commissioning, Command: ArmFailSafe, Privilege: administer */ \
     0x00000002, /* Cluster: General Commissioning, Command: SetRegulatoryConfig, Privilege: administer */ \
     0x00000004, /* Cluster: General Commissioning, Command: CommissioningComplete, Privilege: administer */ \
+    0x00000006, /* Cluster: General Commissioning, Command: SetTCAcknowledgements, Privilege: administer */ \
     0x00000000, /* Cluster: Network Commissioning, Command: ScanNetworks, Privilege: administer */ \
     0x00000002, /* Cluster: Network Commissioning, Command: AddOrUpdateWiFiNetwork, Privilege: administer */ \
     0x00000003, /* Cluster: Network Commissioning, Command: AddOrUpdateThreadNetwork, Privilege: administer */ \
@@ -524,6 +575,8 @@
     0x00000002, /* Cluster: Scenes Management, Command: RemoveScene, Privilege: manage */ \
     0x00000003, /* Cluster: Scenes Management, Command: RemoveAllScenes, Privilege: manage */ \
     0x00000004, /* Cluster: Scenes Management, Command: StoreScene, Privilege: manage */ \
+    0x00000000, /* Cluster: Water Heater Management, Command: Boost, Privilege: manage */ \
+    0x00000001, /* Cluster: Water Heater Management, Command: CancelBoost, Privilege: manage */ \
     0x0000000B, /* Cluster: Door Lock, Command: SetWeekDaySchedule, Privilege: administer */ \
     0x0000000C, /* Cluster: Door Lock, Command: GetWeekDaySchedule, Privilege: administer */ \
     0x0000000D, /* Cluster: Door Lock, Command: ClearWeekDaySchedule, Privilege: administer */ \
@@ -543,14 +596,20 @@
     0x00000029, /* Cluster: Door Lock, Command: ClearAliroReaderConfig, Privilege: administer */ \
     0x00000001, /* Cluster: Thermostat, Command: SetWeeklySchedule, Privilege: manage */ \
     0x00000003, /* Cluster: Thermostat, Command: ClearWeeklySchedule, Privilege: manage */ \
-    0x00000007, /* Cluster: Thermostat, Command: StartPresetsSchedulesEditRequest, Privilege: manage */ \
-    0x00000008, /* Cluster: Thermostat, Command: CancelPresetsSchedulesEditRequest, Privilege: manage */ \
-    0x00000009, /* Cluster: Thermostat, Command: CommitPresetsSchedulesRequest, Privilege: manage */ \
-    0x0000000A, /* Cluster: Thermostat, Command: CancelSetActivePresetRequest, Privilege: manage */ \
+    0x000000FE, /* Cluster: Thermostat, Command: AtomicRequest, Privilege: manage */ \
+    0x00000000, /* Cluster: Wi-Fi Network Management, Command: NetworkPassphraseRequest, Privilege: manage */ \
+    0x00000000, /* Cluster: Thread Border Router Management, Command: GetActiveDatasetRequest, Privilege: manage */ \
+    0x00000001, /* Cluster: Thread Border Router Management, Command: GetPendingDatasetRequest, Privilege: manage */ \
+    0x00000003, /* Cluster: Thread Border Router Management, Command: SetActiveDatasetRequest, Privilege: manage */ \
+    0x00000004, /* Cluster: Thread Border Router Management, Command: SetPendingDatasetRequest, Privilege: manage */ \
+    0x00000000, /* Cluster: Thread Network Directory, Command: AddNetwork, Privilege: manage */ \
+    0x00000001, /* Cluster: Thread Network Directory, Command: RemoveNetwork, Privilege: manage */ \
     0x00000003, /* Cluster: Media Input, Command: RenameInput, Privilege: manage */ \
     0x00000001, /* Cluster: Audio Output, Command: RenameOutput, Privilege: manage */ \
     0x00000000, /* Cluster: Account Login, Command: GetSetupPIN, Privilege: administer */ \
     0x00000002, /* Cluster: Account Login, Command: Login, Privilege: administer */ \
+    0x00000000, /* Cluster: Commissioner Control, Command: RequestCommissioningApproval, Privilege: manage */ \
+    0x00000001, /* Cluster: Commissioner Control, Command: CommissionNode, Privilege: manage */ \
     0x00000000, /* Cluster: Fault Injection, Command: FailAtFault, Privilege: manage */ \
     0x00000001, /* Cluster: Fault Injection, Command: FailRandomlyAtFault, Privilege: manage */ \
 }
@@ -563,9 +622,11 @@
     chip::Access::Privilege::kManage, /* Cluster: Groups, Command: RemoveGroup, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Groups, Command: RemoveAllGroups, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Groups, Command: AddGroupIfIdentifying, Privilege: manage */ \
+    chip::Access::Privilege::kAdminister, /* Cluster: Access Control, Command: ReviewFabricRestrictions, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: General Commissioning, Command: ArmFailSafe, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: General Commissioning, Command: SetRegulatoryConfig, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: General Commissioning, Command: CommissioningComplete, Privilege: administer */ \
+    chip::Access::Privilege::kAdminister, /* Cluster: General Commissioning, Command: SetTCAcknowledgements, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Network Commissioning, Command: ScanNetworks, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Network Commissioning, Command: AddOrUpdateWiFiNetwork, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Network Commissioning, Command: AddOrUpdateThreadNetwork, Privilege: administer */ \
@@ -604,6 +665,8 @@
     chip::Access::Privilege::kManage, /* Cluster: Scenes Management, Command: RemoveScene, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Scenes Management, Command: RemoveAllScenes, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Scenes Management, Command: StoreScene, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Water Heater Management, Command: Boost, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Water Heater Management, Command: CancelBoost, Privilege: manage */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Door Lock, Command: SetWeekDaySchedule, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Door Lock, Command: GetWeekDaySchedule, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Door Lock, Command: ClearWeekDaySchedule, Privilege: administer */ \
@@ -623,14 +686,20 @@
     chip::Access::Privilege::kAdminister, /* Cluster: Door Lock, Command: ClearAliroReaderConfig, Privilege: administer */ \
     chip::Access::Privilege::kManage, /* Cluster: Thermostat, Command: SetWeeklySchedule, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Thermostat, Command: ClearWeeklySchedule, Privilege: manage */ \
-    chip::Access::Privilege::kManage, /* Cluster: Thermostat, Command: StartPresetsSchedulesEditRequest, Privilege: manage */ \
-    chip::Access::Privilege::kManage, /* Cluster: Thermostat, Command: CancelPresetsSchedulesEditRequest, Privilege: manage */ \
-    chip::Access::Privilege::kManage, /* Cluster: Thermostat, Command: CommitPresetsSchedulesRequest, Privilege: manage */ \
-    chip::Access::Privilege::kManage, /* Cluster: Thermostat, Command: CancelSetActivePresetRequest, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Thermostat, Command: AtomicRequest, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Wi-Fi Network Management, Command: NetworkPassphraseRequest, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Thread Border Router Management, Command: GetActiveDatasetRequest, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Thread Border Router Management, Command: GetPendingDatasetRequest, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Thread Border Router Management, Command: SetActiveDatasetRequest, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Thread Border Router Management, Command: SetPendingDatasetRequest, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Thread Network Directory, Command: AddNetwork, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Thread Network Directory, Command: RemoveNetwork, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Media Input, Command: RenameInput, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Audio Output, Command: RenameOutput, Privilege: manage */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Account Login, Command: GetSetupPIN, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Account Login, Command: Login, Privilege: administer */ \
+    chip::Access::Privilege::kManage, /* Cluster: Commissioner Control, Command: RequestCommissioningApproval, Privilege: manage */ \
+    chip::Access::Privilege::kManage, /* Cluster: Commissioner Control, Command: CommissionNode, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Fault Injection, Command: FailAtFault, Privilege: manage */ \
     chip::Access::Privilege::kManage, /* Cluster: Fault Injection, Command: FailRandomlyAtFault, Privilege: manage */ \
 }
@@ -641,18 +710,24 @@
 #define GENERATED_ACCESS_READ_EVENT__CLUSTER { \
     0x0000001F, /* Cluster: Access Control, Event: AccessControlEntryChanged, Privilege: administer */ \
     0x0000001F, /* Cluster: Access Control, Event: AccessControlExtensionChanged, Privilege: administer */ \
+    0x0000001F, /* Cluster: Access Control, Event: FabricRestrictionReviewUpdate, Privilege: administer */ \
+    0x00000751, /* Cluster: Commissioner Control, Event: CommissioningRequestResult, Privilege: manage */ \
 }
 
 // Parallel array data (cluster, *event*, privilege) for read event
 #define GENERATED_ACCESS_READ_EVENT__EVENT { \
     0x00000000, /* Cluster: Access Control, Event: AccessControlEntryChanged, Privilege: administer */ \
     0x00000001, /* Cluster: Access Control, Event: AccessControlExtensionChanged, Privilege: administer */ \
+    0x00000002, /* Cluster: Access Control, Event: FabricRestrictionReviewUpdate, Privilege: administer */ \
+    0x00000000, /* Cluster: Commissioner Control, Event: CommissioningRequestResult, Privilege: manage */ \
 }
 
 // Parallel array data (cluster, event, *privilege*) for read event
 #define GENERATED_ACCESS_READ_EVENT__PRIVILEGE { \
     chip::Access::Privilege::kAdminister, /* Cluster: Access Control, Event: AccessControlEntryChanged, Privilege: administer */ \
     chip::Access::Privilege::kAdminister, /* Cluster: Access Control, Event: AccessControlExtensionChanged, Privilege: administer */ \
+    chip::Access::Privilege::kAdminister, /* Cluster: Access Control, Event: FabricRestrictionReviewUpdate, Privilege: administer */ \
+    chip::Access::Privilege::kManage, /* Cluster: Commissioner Control, Event: CommissioningRequestResult, Privilege: manage */ \
 }
 
 ////////////////////////////////////////////////////////////////////////////////

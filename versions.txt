@@ -1,39 +1,44 @@
-lib-builder: master 2f061cb
-esp-idf: release/v5.3 cfea4f7c98
-arduino: master 9eb7dc6f
-tinyusb: master 249556360
+lib-builder: master 64767cc
+esp-idf: release/v5.5 f1a1df9b2e
+arduino: master 8cb2659f1
+tinyusb: master a6c16d147
 chmorgan__esp-libhelix-mp3: 1.0.3
 espressif__cbor: 0.6.0~1
-espressif__esp-dsp: 1.4.12
-espressif__esp-modbus: 1.0.17
-espressif__esp-nn: 1.1.0
+espressif__esp-dsp: 1.7.0
+espressif__esp-modbus: 1.0.18
+espressif__esp-nn: 1.1.2
 espressif__esp-serial-flasher: 0.0.11
-espressif__esp-sr: 1.9.5
-espressif__esp-tflite-micro: 1.3.2
-espressif__esp-zboss-lib: 1.6.0
-espressif__esp-zigbee-lib: 1.6.0
-espressif__esp32-camera:
-espressif__esp_diag_data_store: 1.0.1
-espressif__esp_diagnostics: 1.0.2
+espressif__esp-tflite-micro: 1.3.4
+espressif__esp-zboss-lib: 1.6.4
+espressif__esp-zigbee-lib: 1.6.7
+espressif__esp_delta_ota: 1.1.2
+espressif__esp_diag_data_store: 1.0.2
+espressif__esp_diagnostics: 1.2.1
 espressif__esp_encrypted_img: 2.1.0
-espressif__esp_insights: 1.0.1
-espressif__esp_matter: 1.3.0
-espressif__esp_modem: 1.3.0
-espressif__esp_rainmaker: 1.5.0
+espressif__esp_insights: 1.2.2
+espressif__esp_matter: 1.4.1
+espressif__esp_modem: 1.4.1
+espressif__esp_rainmaker: 1.5.2
 espressif__esp_rcp_update: 1.2.0
 espressif__esp_schedule: 1.2.0
-espressif__esp_secure_cert_mgr: 2.5.0
+espressif__esp_secure_cert_mgr: 2.7.0
 espressif__jsmn: 1.1.0
 espressif__json_generator: 1.1.2
 espressif__json_parser: 1.0.3
 espressif__libsodium: 1.0.20~2
-espressif__mdns: 1.4.2
+espressif__mdns: 1.9.0
 espressif__network_provisioning: 1.0.2
 espressif__qrcode: 0.1.0~2
 espressif__rmaker_common: 1.4.6
-joltwallet__littlefs: 1.16.1
-espressif__esp-dsp: 1.5.2
-espressif__eppp_link: 0.2.0
-espressif__esp_hosted: 0.0.25
-espressif__esp_serial_slave_link: 1.1.0
-espressif__esp_wifi_remote: 0.4.1
+joltwallet__littlefs: 1.20.2
+espressif__dl_fft: 0.3.1
+espressif__eppp_link: 1.1.3
+espressif__esp-dsp: 1.6.0
+espressif__esp-sr: 2.2.0
+espressif__esp_hosted: 2.6.4
+espressif__esp_serial_slave_link: 1.1.1~1
+espressif__esp_wifi_remote: 0.13.0
+espressif__lan867x: 2.0.0
+espressif__lan86xx_common: 1.0.0
+espressif__esp32-camera:
+espressif__esp_jpeg: 1.3.1

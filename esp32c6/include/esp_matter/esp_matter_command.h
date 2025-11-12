@@ -17,6 +17,20 @@
 #include <esp_matter.h>
 
 namespace esp_matter {
+struct command_entry_t {
+    uint32_t command_id;
+    uint8_t flags;
+    command::callback_t callback;
+};
+
+struct cluster_command_t {
+    uint32_t cluster_id;
+    size_t accepted_command_count;
+    size_t generated_command_count;
+    const command_entry_t *accepted_command_list;
+    const command_entry_t *generated_command_list;
+};
+
 namespace cluster {
 
 /** Specific command create APIs
@@ -42,23 +56,36 @@ command_t *create_disable_action_with_duration(cluster_t *cluster);
 } /* command */
 } /* actions */
 
-namespace diagnostics_network_thread {
+namespace access_control {
 namespace command {
-command_t *create_reset_counts(cluster_t *cluster);
+command_t *create_review_fabric_restrictions(cluster_t *cluster);
+command_t *create_review_fabric_restrictions_response(cluster_t *cluster);
 } /* command */
-} /* diagnostics_network_thread */
+} /* access_control */
 
-namespace diagnostics_network_wifi {
+namespace bridged_device_basic_information {
 namespace command {
-command_t *create_reset_counts(cluster_t *cluster);
+command_t *create_keep_active(cluster_t *cluster);
 } /* command */
-} /* diagnostics_network_wifi */
+} /* bridged_device_basic_information */
 
-namespace diagnostics_network_ethernet {
+namespace thread_network_diagnostics {
 namespace command {
 command_t *create_reset_counts(cluster_t *cluster);
 } /* command */
-} /* diagnostics_network_ethernet */
+} /* thread_network_diagnostics */
+
+namespace wifi_network_diagnotics {
+namespace command {
+command_t *create_reset_counts(cluster_t *cluster);
+} /* command */
+} /* wifi_network_diagnotics */
+
+namespace ethernet_network_diagnostics {
+namespace command {
+command_t *create_reset_counts(cluster_t *cluster);
+} /* command */
+} /* ethernet_network_diagnostics */
 
 namespace diagnostic_logs {
 namespace command {
@@ -100,6 +127,8 @@ command_t *create_commissioning_complete(cluster_t *cluster);
 command_t *create_arm_fail_safe_response(cluster_t *cluster);
 command_t *create_set_regulatory_config_response(cluster_t *cluster);
 command_t *create_commissioning_complete_response(cluster_t *cluster);
+command_t *create_set_tc_acknowledgements(cluster_t *cluster);
+command_t *create_set_tc_acknowledgements_response(cluster_t *cluster);
 } /* command */
 } /* general_commissioning */
 
@@ -265,6 +294,8 @@ command_t *create_set_weekly_schedule(cluster_t *cluster);
 command_t *create_get_weekly_schedule(cluster_t *cluster);
 command_t *create_clear_weekly_schedule(cluster_t *cluster);
 command_t *create_get_weekly_schedule_response(cluster_t *cluster);
+command_t *create_set_active_schedule_request(cluster_t *cluster);
+command_t *create_set_active_preset_request(cluster_t *cluster);
 } /* command */
 } /* thermostat */
 
@@ -301,6 +332,9 @@ command_t *create_set_holiday_schedule(cluster_t *cluster);
 command_t *create_get_holiday_schedule(cluster_t *cluster);
 command_t *create_get_holiday_schedule_response(cluster_t *cluster);
 command_t *create_clear_holiday_schedule(cluster_t *cluster);
+command_t *create_set_user_type(cluster_t *cluster);
+command_t *create_get_user_type(cluster_t *cluster);
+command_t *create_get_user_type_response(cluster_t *cluster);
 command_t *create_set_user(cluster_t *cluster);
 command_t *create_get_user(cluster_t *cluster);
 command_t *create_get_user_response(cluster_t *cluster);
@@ -311,6 +345,8 @@ command_t *create_get_credential_status(cluster_t *cluster);
 command_t *create_get_credential_status_response(cluster_t *cluster);
 command_t *create_clear_credential(cluster_t *cluster);
 command_t *create_unbolt_door(cluster_t *cluster);
+command_t *create_set_aliro_reader_config(cluster_t *cluster);
+command_t *create_clear_aliro_reader_config(cluster_t *cluster);
 } /* command */
 } /* door_lock */
 
@@ -359,7 +395,7 @@ command_t *create_reset_condition(cluster_t *cluster);
 namespace mode_base {
 namespace command {
 command_t *create_change_to_mode(cluster_t *cluster);
-command_t *create_change_to_mode_response(cluster_t *cluster, uint16_t command_id);
+command_t *create_change_to_mode_response(cluster_t *cluster);
 } /* command */
 } /* mode_base */
 
@@ -416,6 +452,67 @@ command_t *create_request_constraint_based_forecast(cluster_t *cluster);
 command_t *create_cancel_request(cluster_t *cluster);
 } /* command */
 } /* device_energy_management */
+
+namespace thread_border_router_management {
+namespace command {
+command_t *create_get_active_dataset_request(cluster_t *cluster);
+command_t *create_get_pending_dataset_request(cluster_t *cluster);
+command_t *create_dataset_response(cluster_t *cluster);
+command_t *create_set_active_dataset_request(cluster_t *cluster);
+command_t *create_set_pending_dataset_request(cluster_t *cluster);
+} /* command */
+} /* thread_border_router_management */
+
+namespace wifi_network_management {
+namespace command {
+command_t *create_network_passphrase_request(cluster_t *cluster);
+command_t *create_network_passphrase_response(cluster_t *cluster);
+} /* command */
+} /* wifi_network_management */
+
+namespace thread_network_directory {
+namespace command {
+command_t *create_add_network(cluster_t *cluster);
+command_t *create_remove_network(cluster_t *cluster);
+command_t *create_get_operational_dataset(cluster_t *cluster);
+command_t *create_operational_dataset_response(cluster_t *cluster);
+} /* command */
+} /* thread_network_directory */
+
+namespace service_area {
+namespace command {
+command_t *create_select_areas(cluster_t *cluster);
+command_t *create_select_areas_response(cluster_t *cluster);
+command_t *create_skip_area(cluster_t *cluster);
+command_t *create_skip_area_response(cluster_t *cluster);
+} /* command */
+} /* service_area */
+
+namespace water_heater_management {
+namespace command {
+command_t *create_boost(cluster_t *cluster);
+command_t *create_cancel_boost(cluster_t *cluster);
+} /* command */
+} /* water_heater_management */
+
+namespace commissioner_control {
+namespace command {
+command_t *create_request_commissioning_approval(cluster_t *cluster);
+command_t *create_commission_node(cluster_t *cluster);
+command_t *create_reverse_open_commissioning_window(cluster_t *cluster);
+} /* command */
+} /* commissioner_control */
+
+namespace time_synchronization {
+namespace command {
+command_t *create_set_utc_time(cluster_t *cluster);
+command_t *create_set_trusted_time_source(cluster_t *cluster);
+command_t *create_set_time_zone(cluster_t *cluster);
+command_t *create_set_time_zone_response(cluster_t *cluster);
+command_t *create_set_dst_offset(cluster_t *cluster);
+command_t *create_set_default_ntp(cluster_t *cluster);
+} /* command */
+} /* time_synchronization */
 
 } /* cluster */
 } /* esp_matter */

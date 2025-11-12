@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2025 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -45,7 +45,7 @@ void esp_transport_ssl_set_cert_data(esp_transport_handle_t t, const char *data,
 void esp_transport_ssl_set_cert_data_der(esp_transport_handle_t t, const char *data, int len);
 
 /**
- * @brief      Enable the use of certification bundle for server verfication for
+ * @brief      Enable the use of certification bundle for server verification for
  *             an SSL connection.
  *             It must be first enabled in menuconfig.
  *
@@ -61,6 +61,15 @@ void esp_transport_ssl_crt_bundle_attach(esp_transport_handle_t t, esp_err_t ((*
  */
 void esp_transport_ssl_enable_global_ca_store(esp_transport_handle_t t);
 
+#if CONFIG_MBEDTLS_DYNAMIC_BUFFER
+/**
+ * @brief      Set ESP-TLS dynamic buffer strategy for ESP-TLS connection
+ *
+ * @param      t    ssl transport
+ * @param[in]  strategy      ESP-TLS dynamic buffer strategy
+ */
+void esp_transport_ssl_set_esp_tls_dyn_buf_strategy(esp_transport_handle_t t, esp_tls_dyn_buf_strategy_t strategy);
+#endif
 /**
  * @brief      Set TLS protocol version for ESP-TLS connection
  *
@@ -163,10 +172,24 @@ void esp_transport_ssl_skip_common_name_check(esp_transport_handle_t t);
  */
 void esp_transport_ssl_set_common_name(esp_transport_handle_t t, const char *common_name);
 
+
+/**
+ * @brief      Set the SSL cipher suites list
+ *
+ * @note       This function stores a pointer to the data rather than making a copy.
+ *             Therefore, the data must remain valid until the connection is cleaned up.
+ *             The `ciphersuites_list` is a pointer to a zero-terminated array of IANA identifiers of TLS cipher suites.
+ *             You can verify the validity of the list using the `esp_tls_get_ciphersuites_list()` API.
+ *
+ * @param      t                  SSL transport
+ * @param[in]  ciphersuites_list  A pointer to a zero-terminated array of IANA identifiers of TLS cipher suites
+ */
+void esp_transport_ssl_set_ciphersuites_list(esp_transport_handle_t t, const int *ciphersuites_list);
+
 /**
  * @brief      Set the ssl context to use secure element (atecc608a) for client(device) private key and certificate
  *
- * @note       Recommended to be used with ESP32 interfaced to ATECC608A based secure element
+ * @note       Recommended to be used with ESP32 series interfaced to ATECC608A based secure element
  *
  * @param      t     ssl transport
  */
@@ -210,6 +233,14 @@ void esp_transport_ssl_set_keep_alive(esp_transport_handle_t t, esp_transport_ke
  * @param[in]  if_name  The interface name
  */
 void esp_transport_ssl_set_interface_name(esp_transport_handle_t t, struct ifreq *if_name);
+
+/**
+ * @brief      Set addr family of transport
+ *
+ * @param[in]  t            The transport handle
+ * @param[in]  addr_family  The addr family
+ */
+void esp_transport_ssl_set_addr_family(esp_transport_handle_t t, esp_tls_addr_family_t addr_family);
 
 #ifdef CONFIG_ESP_TLS_CLIENT_SESSION_TICKETS
 /**

@@ -29,7 +29,6 @@ namespace global {
 namespace attribute {
 attribute_t *create_cluster_revision(cluster_t *cluster, uint16_t value);
 attribute_t *create_feature_map(cluster_t *cluster, uint32_t value);
-attribute_t *create_event_list(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
 } /* attribute */
 } /* global */
 
@@ -45,6 +44,9 @@ attribute_t *create_tag_list(cluster_t *cluster, uint8_t *value, uint16_t length
 
 namespace actions {
 namespace attribute {
+
+constexpr uint16_t k_max_setup_url_length = 256;
+
 attribute_t *create_action_list(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
 attribute_t *create_endpoint_lists(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
 attribute_t *create_setup_url(cluster_t *cluster, char *value, uint16_t length);
@@ -58,6 +60,10 @@ attribute_t *create_extension(cluster_t *cluster, uint8_t *value, uint16_t lengt
 attribute_t *create_subjects_per_access_control_entry(cluster_t *cluster, uint16_t value);
 attribute_t *create_targets_per_access_control_entry(cluster_t *cluster, uint16_t value);
 attribute_t *create_access_control_entries_per_fabric(cluster_t *cluster, uint16_t value);
+#if CHIP_CONFIG_USE_ACCESS_RESTRICTIONS
+attribute_t *create_commissioning_arl(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_arl(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+#endif
 } /* attribute */
 } /* access_control */
 
@@ -76,7 +82,10 @@ attribute_t *create_hardware_version(cluster_t *cluster, uint16_t value);
 attribute_t *create_hardware_version_string(cluster_t *cluster, char *value, uint16_t length);
 attribute_t *create_software_version(cluster_t *cluster, uint32_t value);
 attribute_t *create_software_version_string(cluster_t *cluster, char *value, uint16_t length);
+attribute_t *create_unique_id(cluster_t *cluster, char *value, uint16_t length);
 attribute_t *create_capability_minima(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_specification_version(cluster_t *cluster, uint32_t value);
+attribute_t *create_max_paths_per_invoke(cluster_t *cluster, uint16_t value);
 
 /** These attributes are optional for the cluster, but when added to this cluster, the value is maintained internally.
   * If the attributes are added in some other cluster, then the value is not maintained internally.
@@ -88,10 +97,7 @@ attribute_t *create_product_label(cluster_t *cluster, char *value, uint16_t leng
 attribute_t *create_serial_number(cluster_t *cluster, char *value, uint16_t length);
 attribute_t *create_local_config_disabled(cluster_t *cluster, bool value);
 attribute_t *create_reachable(cluster_t *cluster, bool value);
-attribute_t *create_unique_id(cluster_t *cluster, char *value, uint16_t length);
 attribute_t *create_product_appearance(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
-attribute_t *create_specification_version(cluster_t *cluster, uint32_t value);
-attribute_t *create_max_paths_per_invoke(cluster_t *cluster, uint16_t value);
 } /* attribute */
 } /* basic_information */
 
@@ -117,6 +123,11 @@ attribute_t *create_basic_commissioning_info(cluster_t *cluster, uint8_t *value,
 attribute_t *create_regulatory_config(cluster_t *cluster, uint8_t value);
 attribute_t *create_location_capability(cluster_t *cluster, uint8_t value);
 attribute_t *create_supports_concurrent_connection(cluster_t *cluster, bool value);
+attribute_t *create_tc_accepted_version(cluster_t *cluster, uint16_t value);
+attribute_t *create_tc_min_required_version(cluster_t *cluster, uint16_t value);
+attribute_t *create_tc_acknowledgements(cluster_t *cluster, uint16_t value);
+attribute_t *create_tc_acknowledgements_required(cluster_t *cluster, bool value);
+attribute_t *create_tc_update_deadline(cluster_t *cluster, nullable<uint32_t> value);
 } /* attribute */
 } /* general_commissioning */
 
@@ -141,6 +152,11 @@ namespace attribute {
 attribute_t *create_network_interfaces(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
 attribute_t *create_reboot_count(cluster_t *cluster, uint16_t value);
 attribute_t *create_up_time(cluster_t *cluster, uint64_t value);
+attribute_t *create_total_operational_hours(cluster_t *cluster, uint32_t value);
+attribute_t *create_boot_reason(cluster_t *cluster, uint8_t value);
+attribute_t *create_active_hardware_faults(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_active_radio_faults(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_active_network_faults(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
 attribute_t *create_test_event_triggers_enabled(cluster_t *cluster, bool value);
 } /* attribute */
 } /* general_diagnostics */
@@ -181,6 +197,8 @@ attribute_t *create_max_group_keys_per_fabric(cluster_t *cluster, uint16_t value
 
 namespace icd_management {
 namespace attribute {
+constexpr uint8_t k_user_active_mode_trigger_instruction_length = 128;
+
 attribute_t *create_idle_mode_duration(cluster_t *cluster, uint32_t value);
 attribute_t *create_active_mode_duration(cluster_t *cluster, uint32_t value);
 attribute_t *create_active_mode_threshold(cluster_t *cluster, uint16_t value);
@@ -193,7 +211,7 @@ attribute_t *create_operating_mode(cluster_t *cluster, uint8_t value);
 } /* attribute */
 } /* icd_management */
 
-namespace diagnostics_network_wifi {
+namespace wifi_network_diagnotics {
 namespace attribute {
 attribute_t *create_bssid(cluster_t *cluster, uint8_t *value, uint16_t length);
 attribute_t *create_security_type(cluster_t *cluster, nullable<uint8_t> value);
@@ -213,9 +231,9 @@ attribute_t *create_packet_unicast_tx_count(cluster_t *cluster, nullable<uint32_
 attribute_t *create_current_max_rate(cluster_t *cluster, nullable<uint64_t> value);
 attribute_t *create_overrun_count(cluster_t *cluster, nullable<uint64_t> value);
 } /* attribute */
-} /* diagnostics_network_wifi */
+} /* wifi_network_diagnotics */
 
-namespace diagnostics_network_thread {
+namespace thread_network_diagnostics {
 namespace attribute {
 attribute_t *create_channel(cluster_t *cluster, nullable<uint16_t> value);
 attribute_t *create_routing_role(cluster_t *cluster, nullable<uint8_t> value);
@@ -234,10 +252,12 @@ attribute_t *create_security_policy(cluster_t *cluster, uint8_t *value, uint16_t
 attribute_t *create_channel_page0_mask(cluster_t *cluster, uint8_t *value, uint16_t length);
 attribute_t *create_operational_dataset_components(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
 attribute_t *create_active_network_faults(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_ext_address(cluster_t *cluster, nullable<uint64_t> value);
+attribute_t *create_rloc16(cluster_t *cluster, nullable<uint16_t> value);
 } /* attribute */
-} /* diagnostics_network_thread */
+} /* thread_network_diagnostics */
 
-namespace diagnostics_network_ethernet {
+namespace ethernet_network_diagnostics {
 namespace attribute {
 attribute_t *create_phy_rate(cluster_t *cluster, nullable<uint8_t> value);
 attribute_t *create_full_duplex(cluster_t *cluster, nullable<bool> value);
@@ -249,15 +269,26 @@ attribute_t *create_overrun_count(cluster_t *cluster, uint64_t value);
 attribute_t *create_carrier_detect(cluster_t *cluster, nullable<bool> value);
 attribute_t *create_time_since_reset(cluster_t *cluster, uint64_t value);
 } /* attribute */
-} /* diagnostics_network_ethernet */
+} /* ethernet_network_diagnostics */
 
 namespace bridged_device_basic_information {
+constexpr uint8_t k_max_vendor_name_length = 32;
+constexpr uint8_t k_max_product_name_length = 32;
 constexpr uint8_t k_max_node_label_length = 32;
+constexpr uint8_t k_max_hardware_version_string_length = 64;
+constexpr uint8_t k_max_software_version_string_length = 64;
+constexpr uint8_t k_max_manufacturing_date_length = 16;
+constexpr uint8_t k_max_part_number_length = 32;
+constexpr uint16_t k_max_product_url_length = 256;
+constexpr uint8_t k_max_product_label_length = 64;
+constexpr uint8_t k_max_serial_number_length = 32;
+constexpr uint8_t k_max_unique_id_length = 32;
 
 namespace attribute {
 attribute_t *create_vendor_name(cluster_t *cluster, char *value, uint16_t length);
 attribute_t *create_vendor_id(cluster_t *cluster, uint16_t value);
 attribute_t *create_product_name(cluster_t *cluster, char *value, uint16_t length);
+attribute_t *create_product_id(cluster_t *cluster, uint16_t value);
 attribute_t *create_node_label(cluster_t *cluster, char *value, uint16_t length);
 attribute_t *create_hardware_version(cluster_t *cluster, uint16_t value);
 attribute_t *create_hardware_version_string(cluster_t *cluster, char *value, uint16_t length);
@@ -292,7 +323,7 @@ attribute_t *create_label_list(cluster_t *cluster, uint8_t *value, uint16_t leng
 
 namespace identify {
 namespace attribute {
-attribute_t *create_identify_time(cluster_t *cluster, uint16_t value, uint16_t min, uint16_t max);
+attribute_t *create_identify_time(cluster_t *cluster, uint16_t value);
 attribute_t *create_identify_type(cluster_t *cluster, uint8_t value);
 } /* attribute */
 } /* identify */
@@ -325,7 +356,7 @@ namespace level_control {
 namespace attribute {
 attribute_t *create_current_level(cluster_t *cluster, nullable<uint8_t> value);
 attribute_t *create_on_level(cluster_t *cluster, nullable<uint8_t> value);
-attribute_t *create_options(cluster_t *cluster, uint8_t value, uint8_t min, uint8_t max);
+attribute_t *create_options(cluster_t *cluster, uint8_t value);
 attribute_t *create_remaining_time(cluster_t *cluster, uint16_t value);
 attribute_t *create_min_level(cluster_t *cluster, uint8_t value);
 attribute_t *create_max_level(cluster_t *cluster, uint8_t value);
@@ -344,21 +375,21 @@ namespace color_control {
 constexpr uint8_t k_max_compensation_text_length = 254;
 
 namespace attribute {
-attribute_t *create_current_hue(cluster_t *cluster, uint8_t value, uint8_t min, uint8_t max);
-attribute_t *create_current_saturation(cluster_t *cluster, uint8_t value, uint8_t min, uint8_t max);
+attribute_t *create_current_hue(cluster_t *cluster, uint8_t value);
+attribute_t *create_current_saturation(cluster_t *cluster, uint8_t value);
 attribute_t *create_remaining_time(cluster_t *cluster, uint16_t value);
 attribute_t *create_color_mode(cluster_t *cluster, uint8_t value);
 attribute_t *create_color_control_options(cluster_t *cluster, uint8_t value);
-attribute_t *create_enhanced_color_mode(cluster_t *cluster, uint8_t value, uint8_t min, uint8_t max);
-attribute_t *create_color_capabilities(cluster_t *cluster, uint16_t value, uint16_t min, uint16_t max);
-attribute_t *create_color_temperature_mireds(cluster_t *cluster, uint16_t value, uint16_t min, uint16_t max);
-attribute_t *create_color_temp_physical_min_mireds(cluster_t *cluster, uint16_t value, uint16_t min, uint16_t max);
-attribute_t *create_color_temp_physical_max_mireds(cluster_t *cluster, uint16_t value, uint16_t min, uint16_t max);
-attribute_t *create_couple_color_temp_to_level_min_mireds(cluster_t *cluster, uint16_t value, uint16_t min, uint16_t max);
+attribute_t *create_enhanced_color_mode(cluster_t *cluster, uint8_t value);
+attribute_t *create_color_capabilities(cluster_t *cluster, uint16_t value);
+attribute_t *create_color_temperature_mireds(cluster_t *cluster, uint16_t value);
+attribute_t *create_color_temp_physical_min_mireds(cluster_t *cluster, uint16_t value);
+attribute_t *create_color_temp_physical_max_mireds(cluster_t *cluster, uint16_t value);
+attribute_t *create_couple_color_temp_to_level_min_mireds(cluster_t *cluster, uint16_t value);
 attribute_t *create_startup_color_temperature_mireds(cluster_t *cluster, nullable<uint16_t> value);
-attribute_t *create_current_x(cluster_t *cluster, uint16_t value, uint16_t min, uint16_t max);
-attribute_t *create_current_y(cluster_t *cluster, uint16_t value, uint16_t min, uint16_t max);
-attribute_t *create_drift_compensation(cluster_t *cluster, uint8_t value, uint8_t min, uint8_t max);
+attribute_t *create_current_x(cluster_t *cluster, uint16_t value);
+attribute_t *create_current_y(cluster_t *cluster, uint16_t value);
+attribute_t *create_drift_compensation(cluster_t *cluster, uint8_t value);
 attribute_t *create_compensation_text(cluster_t *cluster, char *value, uint16_t length);
 attribute_t *create_enhanced_current_hue(cluster_t *cluster, uint16_t value);
 attribute_t *create_color_loop_active(cluster_t *cluster, uint8_t value);
@@ -375,13 +406,13 @@ attribute_t *create_primary_n_intensity(cluster_t * cluster, nullable<uint8_t> v
 
 namespace fan_control {
 namespace attribute {
-attribute_t *create_fan_mode(cluster_t *cluster, uint8_t value, uint8_t min, uint8_t max);
-attribute_t *create_fan_mode_sequence(cluster_t *cluster, const uint8_t value, uint8_t min, uint8_t max);
-attribute_t *create_percent_setting(cluster_t *cluster, nullable<uint8_t> value, nullable<uint8_t> min, nullable<uint8_t> max);
-attribute_t *create_percent_current(cluster_t *cluster, uint8_t value, uint8_t min, uint8_t max);
-attribute_t *create_speed_max(cluster_t *cluster, uint8_t value, uint8_t min, uint8_t max);
-attribute_t *create_speed_setting(cluster_t *cluster, nullable<uint8_t> value, nullable<uint8_t> min, nullable<uint8_t> max);
-attribute_t *create_speed_current(cluster_t *cluster, uint8_t value, uint8_t min, uint8_t max);
+attribute_t *create_fan_mode(cluster_t *cluster, uint8_t value);
+attribute_t *create_fan_mode_sequence(cluster_t *cluster, const uint8_t value);
+attribute_t *create_percent_setting(cluster_t *cluster, nullable<uint8_t> value);
+attribute_t *create_percent_current(cluster_t *cluster, uint8_t value);
+attribute_t *create_speed_max(cluster_t *cluster, uint8_t value);
+attribute_t *create_speed_setting(cluster_t *cluster, nullable<uint8_t> value);
+attribute_t *create_speed_current(cluster_t *cluster, uint8_t value);
 attribute_t *create_rock_support(cluster_t *cluster, uint8_t value);
 attribute_t *create_rock_setting(cluster_t *cluster, uint8_t value);
 attribute_t *create_wind_support(cluster_t *cluster, uint8_t value);
@@ -391,6 +422,8 @@ attribute_t *create_airflow_direction(cluster_t *cluster, uint8_t value);
 } /* fan_control */
 
 namespace thermostat {
+const uint8_t k_max_active_preset_handle = 16u;
+const uint8_t k_max_active_schedule_handle = 16u;
 namespace attribute {
 attribute_t *create_local_temperature(cluster_t *cluster, nullable<int16_t> value);
 attribute_t *create_outdoor_temperature(cluster_t *cluster, nullable<int16_t> value);
@@ -413,8 +446,8 @@ attribute_t *create_min_cool_setpoint_limit(cluster_t *cluster, int16_t value);
 attribute_t *create_max_cool_setpoint_limit(cluster_t *cluster, int16_t value);
 attribute_t *create_min_setpoint_dead_band(cluster_t *cluster, int8_t value);
 attribute_t *create_remote_sensing(cluster_t *cluster, uint8_t value);
-attribute_t *create_control_sequence_of_operation(cluster_t *cluster, uint8_t value, uint8_t min, uint8_t max);
-attribute_t *create_system_mode(cluster_t *cluster, uint8_t value, uint8_t min, uint8_t max);
+attribute_t *create_control_sequence_of_operation(cluster_t *cluster, uint8_t value);
+attribute_t *create_system_mode(cluster_t *cluster, uint8_t value);
 attribute_t *create_thermostat_running_mode(cluster_t *cluster, uint8_t value);
 attribute_t *create_start_of_week(cluster_t *cluster, uint8_t value);
 attribute_t *create_number_of_weekly_transitions(cluster_t *cluster, uint8_t value);
@@ -441,6 +474,17 @@ attribute_t *create_ac_error_code(cluster_t *cluster, uint32_t value);
 attribute_t *create_ac_louver_position(cluster_t *cluster, uint8_t value);
 attribute_t *create_ac_coil_temperature(cluster_t *cluster, nullable<int16_t> value);
 attribute_t *create_ac_capacity_format(cluster_t *cluster, uint8_t value);
+attribute_t *create_preset_type(cluster_t *cluster, uint8_t * value, uint16_t length, uint16_t count);
+attribute_t *create_schedule_type(cluster_t *cluster, uint8_t * value, uint16_t length, uint16_t count);
+attribute_t *create_number_of_presets(cluster_t *cluster, uint8_t value);
+attribute_t *create_number_of_schedules(cluster_t *cluster, uint8_t value);
+attribute_t *create_number_of_schedule_transitions(cluster_t *cluster, uint8_t value);
+attribute_t *create_number_of_schedule_transition_per_day(cluster_t *cluster, nullable<uint8_t> value);
+attribute_t *create_active_preset_handle(cluster_t *cluster,  uint8_t*value, uint16_t length);
+attribute_t *create_active_schedule_handle(cluster_t *cluster, uint8_t *value, uint16_t length);
+attribute_t *create_presets(cluster_t *cluster, uint8_t * value, uint16_t length, uint16_t count);
+attribute_t *create_schedules(cluster_t *cluster, uint8_t * value, uint16_t length, uint16_t count);
+attribute_t *create_setpoint_hold_expiry_timestamp(cluster_t *cluster, nullable<uint32_t> value);
 } /* attribute */
 } /* thermostat */
 
@@ -653,12 +697,16 @@ attribute_t *create_operational_error(cluster_t *cluster, uint8_t value);
 
 namespace door_lock {
 constexpr uint8_t k_max_language_length = 3;
+constexpr uint8_t k_max_aliro_reader_verification_key = 65;
+constexpr uint8_t k_max_aliro_reader_group_identifier = 16;
+constexpr uint8_t k_max_aliro_reader_group_sub_identifier = 16;
+constexpr uint8_t k_max_aliro_group_resolving_key = 16;
 
 namespace attribute {
 attribute_t *create_lock_state(cluster_t *cluster, nullable<uint8_t> value);
 attribute_t *create_lock_type(cluster_t *cluster, uint8_t value);
 attribute_t *create_actuator_enabled(cluster_t *cluster, bool value);
-attribute_t *create_door_state(cluster_t *cluster, uint8_t value);
+attribute_t *create_door_state(cluster_t *cluster, nullable<uint8_t> value);
 attribute_t *create_door_open_events(cluster_t *cluster, uint32_t value);
 attribute_t *create_door_close_events(cluster_t *cluster, uint32_t value);
 attribute_t *create_open_period(cluster_t *cluster, uint16_t value);
@@ -691,6 +739,15 @@ attribute_t *create_user_code_temporary_disable_time(cluster_t *cluster, uint8_t
 attribute_t *create_send_pin_over_the_air(cluster_t *cluster, bool value);
 attribute_t *create_require_pin_for_remote_operation(cluster_t *cluster, bool value);
 attribute_t *create_expiring_user_timeout(cluster_t *cluster, uint16_t value);
+attribute_t *create_aliro_reader_verification_key(cluster_t *cluster, uint8_t * value, uint16_t length);
+attribute_t *create_aliro_reader_group_identifier(cluster_t *cluster, uint8_t * value, uint16_t length);
+attribute_t *create_aliro_reader_group_sub_identifier(cluster_t *cluster, uint8_t * value, uint16_t length);
+attribute_t *create_aliro_expedited_transaction_supported_protocol_versions(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_aliro_group_resolving_key(cluster_t *cluster, uint8_t * value, uint16_t length);
+attribute_t *create_aliro_supported_bleuwb_protocol_versions(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_aliro_ble_advertising_version(cluster_t *cluster, uint8_t value);
+attribute_t *create_number_of_aliro_credential_issuer_keys_supported(cluster_t *cluster, uint16_t value);
+attribute_t *create_number_of_aliro_endpoint_keys_supported(cluster_t *cluster, uint16_t value);
 } /* attribute */
 } /* door_lock */
 
@@ -785,6 +842,17 @@ namespace attribute {
 attribute_t *create_occupancy(cluster_t *cluster, uint8_t value);
 attribute_t *create_occupancy_sensor_type(cluster_t *cluster, uint8_t value);
 attribute_t *create_occupancy_sensor_type_bitmap(cluster_t *cluster, uint8_t value);
+attribute_t *create_hold_time(cluster_t *cluster, uint16_t value);
+attribute_t *create_hold_time_limits(cluster_t *cluster, uint8_t* value, uint16_t length, uint16_t count);
+attribute_t *create_pir_occupied_to_unoccupied_delay(cluster_t *cluster, uint16_t value);
+attribute_t *create_pir_unoccupied_to_occupied_delay(cluster_t *cluster, uint16_t value);
+attribute_t *create_pir_unoccupied_to_occupied_threshold(cluster_t *cluster, uint8_t value);
+attribute_t *create_ultrasonic_occupied_to_unoccupied_delay(cluster_t *cluster, uint16_t value);
+attribute_t *create_ultrasonic_unoccupied_to_occupied_delay(cluster_t *cluster, uint16_t value);
+attribute_t *create_ultrasonic_unoccupied_to_occupied_threshold(cluster_t *cluster, uint8_t value);
+attribute_t *create_physical_contact_occupied_to_unoccupied_delay(cluster_t *cluster, uint16_t value);
+attribute_t *create_physical_contact_unoccupied_to_occupied_delay(cluster_t *cluster, uint16_t value);
+attribute_t *create_physical_contact_unoccupied_to_occupied_threshold(cluster_t *cluster, uint8_t value);
 } /* attribute */
 } /* occupancy_sensing */
 
@@ -911,6 +979,7 @@ constexpr uint8_t k_max_fault_count = 8;
 constexpr uint8_t k_max_designation_count = 20;
 constexpr uint8_t k_max_charge_faults_count = 16;
 constexpr uint8_t k_max_bat_replacement_description_length = 60;
+constexpr uint8_t k_max_endpoint_count = 16;
 
 namespace attribute {
 attribute_t *create_status(cluster_t *cluster, uint8_t value);
@@ -944,6 +1013,7 @@ attribute_t *create_bat_time_to_full_charge(cluster_t *cluster, nullable<uint32_
 attribute_t *create_bat_functional_while_charging(cluster_t *cluster, bool value);
 attribute_t *create_bat_charging_current(cluster_t *cluster, nullable<uint32_t> value, nullable<uint32_t> min, nullable<uint32_t> max);
 attribute_t *create_active_bat_charge_faults(cluster_t *cluster, uint8_t * value, uint16_t length, uint16_t count);
+attribute_t *create_endpoint_list(cluster_t *cluster, uint8_t * value, uint16_t length, uint16_t count);
 } /* attribute */
 } /* power_source */
 
@@ -1021,6 +1091,9 @@ attribute_t *create_cumulative_energy_reset(cluster_t *cluster, const uint8_t* v
 
 namespace energy_evse {
 namespace attribute {
+
+constexpr uint8_t k_max_vehicle_id_length = 32;
+
 attribute_t *create_state(cluster_t *cluster, nullable<uint8_t> value);
 attribute_t *create_supply_state(cluster_t *cluster, uint8_t value);
 attribute_t *create_fault_state(cluster_t *cluster, uint8_t value);
@@ -1105,6 +1178,95 @@ attribute_t *create_application_version(cluster_t *cluster, char *value, uint16_
 attribute_t *create_allowed_vendor_list(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
 } /* attribute */
 } /* application_basic */
+
+namespace thread_border_router_management {
+namespace attribute {
+attribute_t *create_border_router_name(cluster_t *cluster, char *value, uint16_t length);
+attribute_t *create_border_agent_id(cluster_t *cluster, uint8_t *value, uint16_t length);
+attribute_t *create_thread_version(cluster_t *cluster, uint16_t value);
+attribute_t *create_interface_enabled(cluster_t *cluster, bool value);
+attribute_t *create_active_dataset_timestamp(cluster_t *cluster, nullable<uint64_t> value);
+attribute_t *create_pending_dataset_timestamp(cluster_t *cluster, nullable<uint64_t> value);
+} /* attribute */
+} /* thread_border_router_management */
+
+namespace wifi_network_management {
+namespace attribute {
+attribute_t *create_ssid(cluster_t *cluster, uint8_t *value, uint16_t length);
+attribute_t *create_passphrase_surrogate(cluster_t *cluster, nullable<uint64_t> value);
+} /* attribute */
+} /* wifi_network_management */
+
+namespace thread_network_directory {
+namespace attribute {
+attribute_t *create_preferred_extended_pan_id(cluster_t *cluster, uint8_t *value, uint16_t length);
+attribute_t *create_thread_networks(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_thread_network_table_size(cluster_t *cluster, uint8_t value);
+} /* attribute */
+} /* thread_network_directory */
+
+namespace service_area {
+namespace attribute {
+attribute_t *create_supported_areas(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_supported_maps(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_selected_areas(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_current_area(cluster_t *cluster, nullable<uint32_t> value);
+attribute_t *create_estimated_end_time(cluster_t *cluster, nullable<uint32_t> value);
+attribute_t *create_progress(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+} /* attribute */
+} /* service_area */
+
+namespace water_heater_management {
+namespace attribute {
+attribute_t *create_heater_types(cluster_t *cluster, uint8_t value);
+attribute_t *create_heat_demand(cluster_t *cluster, uint8_t value);
+attribute_t *create_tank_volume(cluster_t *cluster, uint16_t value);
+attribute_t *create_estimated_heat_required(cluster_t *cluster, int64_t value);
+attribute_t *create_tank_percentage(cluster_t *cluster, uint8_t value);
+attribute_t *create_boost_state(cluster_t *cluster, uint8_t value);
+} /* attribute */
+} /* water_heater_management */
+
+namespace energy_preference {
+namespace attribute {
+attribute_t *create_energy_balances(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_current_energy_balance(cluster_t *cluster, uint8_t value);
+attribute_t *create_energy_priorities(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_low_power_mode_sensitivities(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_current_low_power_mode_sensitivity(cluster_t *cluster, uint8_t value);
+} /* attribute */
+} /* energy_preference */
+
+namespace commissioner_control {
+namespace attribute {
+attribute_t *create_supported_device_categories(cluster_t *cluster, uint32_t value);
+} /* attribute */
+} /* commissioner_control */
+
+namespace ecosystem_information {
+namespace attribute {
+attribute_t *create_device_directory(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_location_directory(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+} /* attribute */
+} /* ecosystem_information */
+
+namespace time_synchronization {
+namespace attribute {
+attribute_t *create_utc_time(cluster_t *cluster, nullable<uint64_t> value);
+attribute_t *create_granularity(cluster_t *cluster, uint8_t value);
+attribute_t *create_time_source(cluster_t *cluster, uint8_t value);
+attribute_t *create_trusted_time_source(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_default_ntp(cluster_t *cluster, char *value, uint16_t length);
+attribute_t *create_time_zone(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_dst_offset(cluster_t *cluster, uint8_t *value, uint16_t length, uint16_t count);
+attribute_t *create_local_time(cluster_t *cluster, nullable<uint64_t> value);
+attribute_t *create_time_zone_database(cluster_t *cluster, uint8_t value);
+attribute_t *create_ntp_server_available(cluster_t *cluster, bool value);
+attribute_t *create_time_zone_list_max_size(cluster_t *cluster, uint8_t value);
+attribute_t *create_dst_offset_list_max_size(cluster_t *cluster, uint8_t value);
+attribute_t *create_supports_dns_resolve(cluster_t *cluster, bool value);
+} /* attribute */
+} /* time_synchronization */
 
 } /* cluster */
 } /* esp_matter */

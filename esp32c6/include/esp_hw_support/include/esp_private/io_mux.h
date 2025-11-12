@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022-2024 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2022-2025 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -37,11 +37,18 @@ typedef struct {
 } rtc_io_status_t;
 
 /**
- * Enable/Disable LP_IO peripheral clock.
+ * @brief Enable/Disable LP_IO peripheral clock
+ *
  * @param gpio_num GPIO number
  * @param enable   true to enable the clock / false to disable the clock
  */
 void io_mux_enable_lp_io_clock(gpio_num_t gpio_num, bool enable);
+
+/**
+ * Force disable one LP_IO to clock dependency
+ * @param gpio_num GPIO number
+ */
+void io_mux_force_disable_lp_io_clock(gpio_num_t gpio_num);
 #endif
 
 #ifdef __cplusplus

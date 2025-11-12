@@ -160,7 +160,7 @@ esp_zb_attribute_list_t *esp_zb_shade_config_cluster_create(esp_zb_shade_config_
 /**
  * @brief  Create a standard binary input (basic) cluster attribute list.
  *
- * @note  This only contains the mandatory attribute. Switch type attribute default set to 0. User could change it if necessary.
+ * @note  This only contains the mandatory attribute.
  * @param[in] binary_input_cfg  Configuration parameters for this cluster defined by @ref esp_zb_binary_input_cluster_cfg_s
  *
  * @return Pointer to attribute list @ref esp_zb_attribute_list_s
@@ -195,7 +195,7 @@ esp_zb_attribute_list_t *esp_zb_door_lock_cluster_create(esp_zb_door_lock_cluste
 /**
  * @brief  Create a standard IAS zone cluster attribute list.
  *
- * @note  This only contains the mandatory attribute. Switch type attribute default set to 0. User could change it if necessary.
+ * @note  This only contains the mandatory attribute.
  * @param[in] ias_zone_cfg  Configuration parameters for this cluster defined by @ref esp_zb_ias_zone_cluster_cfg_s
  *
  * @return Pointer to attribute list @ref esp_zb_attribute_list_s
@@ -444,6 +444,26 @@ esp_zb_attribute_list_t *esp_zb_carbon_dioxide_measurement_cluster_create(esp_zb
 esp_zb_attribute_list_t *esp_zb_pm2_5_measurement_cluster_create(esp_zb_pm2_5_measurement_cluster_cfg_t *pm2_5_measurement_cfg);
 
 /**
+ * @brief  Create a standard multistate input cluster attribute list.
+ *
+ * @param[in] multistate_input_cfg  Configuration parameters for this cluster defined by @ref esp_zb_multistate_input_cluster_cfg_s
+ *
+ * @return pointer to attribute list @ref esp_zb_attribute_list_s
+ *
+ */
+esp_zb_attribute_list_t *esp_zb_multistate_input_cluster_create(esp_zb_multistate_input_cluster_cfg_t *multistate_input_cfg);
+
+/**
+ * @brief  Create a standard multistate output cluster attribute list.
+ *
+ * @param[in] multistate_output_cfg  Configuration parameters for this cluster defined by @ref esp_zb_multistate_output_cluster_cfg_s
+ *
+ * @return pointer to attribute list @ref esp_zb_attribute_list_s
+ *
+ */
+esp_zb_attribute_list_t *esp_zb_multistate_output_cluster_create(esp_zb_multistate_output_cluster_cfg_t *multistate_output_cfg);
+
+/**
  * @brief  Create a standard multistate value attribute list
  *
  * @param[in] multistate_value_cfg  Configuration parameters for this cluster defined by @ref esp_zb_multistate_value_cluster_cfg_s
@@ -502,6 +522,70 @@ esp_zb_attribute_list_t *esp_zb_price_cluster_create(esp_zb_price_cluster_cfg_t 
  *
  */
 esp_zb_attribute_list_t *esp_zb_drlc_cluster_create(esp_zb_drlc_cluster_cfg_t *drlc_cfg);
+
+/**
+ * @brief  Create a standard dehumidification control attribute list
+ *
+ * @param[in] dehumidification_cfg Configuration parameters for this cluster defined by @ref esp_zb_dehumidification_control_cluster_cfg_s
+ *
+ * @return pointer to attribute list @ref esp_zb_attribute_list_s
+ *
+ */
+esp_zb_attribute_list_t *esp_zb_dehumidification_control_cluster_create(esp_zb_dehumidification_control_cluster_cfg_t *dehumidification_cfg);
+
+/**
+ * @brief  Create a standard binary output (basic) cluster attribute list.
+ *
+ * @note  This only contains the mandatory attribute.
+ * @param[in] binary_output_cfg  Configuration parameters for this cluster defined by @ref esp_zb_binary_output_cluster_cfg_s
+ *
+ * @return Pointer to attribute list @ref esp_zb_attribute_list_s
+ *
+ */
+esp_zb_attribute_list_t *esp_zb_binary_output_cluster_create(esp_zb_binary_output_cluster_cfg_t *binary_output_cfg);
+
+/**
+ * @brief  Create a standard binary value cluster attribute list.
+ *
+ * @note  This only contains the mandatory attribute.
+ * @param[in] binary_value_cfg  Configuration parameters for this cluster defined by @ref esp_zb_binary_value_cluster_cfg_s
+ *
+ * @return Pointer to attribute list @ref esp_zb_attribute_list_s
+ *
+ */
+esp_zb_attribute_list_t *esp_zb_binary_value_cluster_create(esp_zb_binary_value_cluster_cfg_t *binary_value_cfg);
+
+/**
+ * @brief  Create a standard poll control attribute list
+ *
+ * @param[in] poll_control_cfg  Configuration parameters for this cluster defined by @ref esp_zb_poll_control_cluster_cfg_s
+ *
+ * @return pointer to attribute list @ref esp_zb_attribute_list_s
+ *
+ */
+esp_zb_attribute_list_t *esp_zb_poll_control_cluster_create(esp_zb_poll_control_cluster_cfg_t *poll_control_cfg);
+
+/**
+ * @brief  Create a standard device temperature configuration attribute list
+ *
+ * @param[in] cfg  Configuration parameters for this cluster defined by @ref esp_zb_device_temp_config_cluster_cfg_s
+ *
+ * @return pointer to attribute list @ref esp_zb_attribute_list_s
+ *
+ */
+esp_zb_attribute_list_t *esp_zb_device_temp_config_cluster_create(esp_zb_device_temp_config_cluster_cfg_t *cfg);
+
+/**
+ * @brief  Create a standard alarms attribute list
+ *
+ * If the alarm_table_size is not zero, the alarm_count attribute will be added by this function
+ *
+ * @param[in] cfg  Configuration parameters for this cluster defined by @ref esp_zb_alarms_cluster_cfg_s
+ *
+ * @return pointer to attribute list @ref esp_zb_attribute_list_s
+ *
+ */
+esp_zb_attribute_list_t *esp_zb_alarms_cluster_create(esp_zb_alarms_cluster_cfg_t *cfg);
 
 /**************************************** ADD CLUSTER ***********************************/
 /**
@@ -671,6 +755,34 @@ esp_err_t esp_zb_cluster_list_add_shade_config_cluster(esp_zb_cluster_list_t *cl
  *
  */
 esp_err_t esp_zb_cluster_list_add_binary_input_cluster(esp_zb_cluster_list_t *cluster_list, esp_zb_attribute_list_t *attr_list, uint8_t role_mask);
+
+/**
+ * @brief Add binary output (basic) cluster (attribute list) in a cluster list.
+ *
+ * @param[in] cluster_list A pointer to cluster list @ref esp_zb_cluster_list_s
+ * @param[in] attr_list  An attribute list which wants to add
+ * @param[in] role_mask  A role of server or client for this cluster (attribute list) refer to esp_zb_zcl_cluster_role_t
+ *
+ * @return
+ *      - ESP_OK on success
+ *      - ESP_ERR_INVALID_ARG if cluster list not initialized
+ *
+ */
+esp_err_t esp_zb_cluster_list_add_binary_output_cluster(esp_zb_cluster_list_t *cluster_list, esp_zb_attribute_list_t *attr_list, uint8_t role_mask);
+
+/**
+ * @brief Add binary value cluster (attribute list) in a cluster list.
+ *
+ * @param[in] cluster_list A pointer to cluster list @ref esp_zb_cluster_list_s
+ * @param[in] attr_list  An attribute list which wants to add
+ * @param[in] role_mask  A role of server or client for this cluster (attribute list) refer to esp_zb_zcl_cluster_role_t
+ *
+ * @return
+ *      - ESP_OK on success
+ *      - ESP_ERR_INVALID_ARG if cluster list not initialized
+ *
+ */
+esp_err_t esp_zb_cluster_list_add_binary_value_cluster(esp_zb_cluster_list_t *cluster_list, esp_zb_attribute_list_t *attr_list, uint8_t role_mask);
 
 /**
  * @brief Add Commissioning cluster (attribute list) in a cluster list.
@@ -1040,6 +1152,34 @@ esp_err_t esp_zb_cluster_list_add_carbon_dioxide_measurement_cluster(esp_zb_clus
 esp_err_t esp_zb_cluster_list_add_pm2_5_measurement_cluster(esp_zb_cluster_list_t *cluster_list, esp_zb_attribute_list_t *attr_list, uint8_t role_mask);
 
 /**
+ * @brief Add MultiState Input cluster (attribute list) in a cluster list.
+ *
+ * @param[in] cluster_list A pointer to cluster list @ref esp_zb_cluster_list_s
+ * @param[in] attr_list  An attribute list which wants to add
+ * @param[in] role_mask  A role of server or client for this cluster (attribute list) refer to esp_zb_zcl_cluster_role_t
+ *
+ * @return
+ *      - ESP_OK on success
+ *      - ESP_ERR_INVALID_ARG if cluster list not initialized
+ *
+ */
+esp_err_t esp_zb_cluster_list_add_multistate_input_cluster(esp_zb_cluster_list_t *cluster_list, esp_zb_attribute_list_t *attr_list, uint8_t role_mask);
+
+/**
+ * @brief Add MultiState Output cluster (attribute list) in a cluster list.
+ *
+ * @param[in] cluster_list A pointer to cluster list @ref esp_zb_cluster_list_s
+ * @param[in] attr_list  An attribute list which wants to add
+ * @param[in] role_mask  A role of server or client for this cluster (attribute list) refer to esp_zb_zcl_cluster_role_t
+ *
+ * @return
+ *      - ESP_OK on success
+ *      - ESP_ERR_INVALID_ARG if cluster list not initialized
+ *
+ */
+esp_err_t esp_zb_cluster_list_add_multistate_output_cluster(esp_zb_cluster_list_t *cluster_list, esp_zb_attribute_list_t *attr_list, uint8_t role_mask);
+
+/**
  * @brief Add multistate value cluster (attribute list) in a cluster list.
  *
  * @param[in] cluster_list A pointer to cluster list @ref esp_zb_cluster_list_s
@@ -1124,6 +1264,20 @@ esp_err_t esp_zb_cluster_list_add_price_cluster(esp_zb_cluster_list_t *cluster_l
 esp_err_t esp_zb_cluster_list_add_drlc_cluster(esp_zb_cluster_list_t *cluster_list, esp_zb_attribute_list_t *attr_list, uint8_t role_mask);
 
 /**
+ * @brief Add dehumidification control cluster (attribute list) in a cluster list.
+ *
+ * @param[in] cluster_list A pointer to cluster list @ref esp_zb_cluster_list_s
+ * @param[in] attr_list  An attribute list which wants to add
+ * @param[in] role_mask  A role of server or client for this cluster (attribute list) refer to esp_zb_zcl_cluster_role_t
+ *
+ * @return
+ *      - ESP_OK on success
+ *      - ESP_ERR_INVALID_ARG if cluster list not initialized
+ *
+ */
+esp_err_t esp_zb_cluster_list_add_dehumidification_control_cluster(esp_zb_cluster_list_t *cluster_list, esp_zb_attribute_list_t *attr_list, uint8_t role_mask);
+
+/**
  * @brief Add customized cluster (attribute list) in a cluster list.
  *
  * @param[in] cluster_list A pointer to cluster list @ref esp_zb_cluster_list_s
@@ -1138,6 +1292,48 @@ esp_err_t esp_zb_cluster_list_add_drlc_cluster(esp_zb_cluster_list_t *cluster_li
  *
  */
 esp_err_t esp_zb_cluster_list_add_custom_cluster(esp_zb_cluster_list_t *cluster_list, esp_zb_attribute_list_t *attr_list, uint8_t role_mask);
+
+/**
+ * @brief Add poll control cluster (attribute list) in a cluster list.
+ *
+ * @param[in] cluster_list A pointer to cluster list @ref esp_zb_cluster_list_s
+ * @param[in] attr_list  An attribute list which wants to add
+ * @param[in] role_mask  A role of server or client for this cluster (attribute list) refer to esp_zb_zcl_cluster_role_t
+ *
+ * @return
+ *      - ESP_OK on success
+ *      - ESP_ERR_INVALID_ARG if cluster list not initialized
+ *
+ */
+esp_err_t esp_zb_cluster_list_add_poll_control_cluster(esp_zb_cluster_list_t *cluster_list, esp_zb_attribute_list_t *attr_list, uint8_t role_mask);
+
+/**
+ * @brief Add device temperature configuration cluster (attribute list) in a cluster list.
+ *
+ * @param[in] cluster_list A pointer to cluster list @ref esp_zb_cluster_list_s
+ * @param[in] attr_list  An attribute list which wants to add
+ * @param[in] role_mask  A role of server or client for this cluster (attribute list) refer to esp_zb_zcl_cluster_role_t
+ *
+ * @return
+ *      - ESP_OK on success
+ *      - ESP_ERR_INVALID_ARG if cluster list not initialized
+ *
+ */
+esp_err_t esp_zb_cluster_list_add_device_temp_config_cluster(esp_zb_cluster_list_t *cluster_list, esp_zb_attribute_list_t *attr_list, uint8_t role_mask);
+
+/**
+ * @brief Add device alarms (attribute list) in a cluster list.
+ *
+ * @param[in] cluster_list A pointer to cluster list @ref esp_zb_cluster_list_s
+ * @param[in] attr_list  An attribute list which wants to add
+ * @param[in] role_mask  A role of server or client for this cluster (attribute list) refer to esp_zb_zcl_cluster_role_t
+ *
+ * @return
+ *      - ESP_OK on success
+ *      - ESP_ERR_INVALID_ARG if cluster list not initialized
+ *
+ */
+esp_err_t esp_zb_cluster_list_add_alarms_cluster(esp_zb_cluster_list_t *cluster_list, esp_zb_attribute_list_t *attr_list, uint8_t role_mask);
 
 /**
  * @brief Get cluster (attribute list) from a cluster list.

@@ -1,11 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2023 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2023-2025 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 #include "esp_clk_tree.h"
 #include "soc/soc_caps.h"
@@ -73,6 +74,28 @@ uint32_t esp_clk_tree_lp_slow_get_freq_hz(esp_clk_tree_src_freq_precision_t prec
  * @return LP_FAST clock frequency, in Hz. Returns 0 if degree of precision is invalid or calibration failed.
  */
 uint32_t esp_clk_tree_lp_fast_get_freq_hz(esp_clk_tree_src_freq_precision_t precision);
+
+/**
+ * @brief Enable / Disable the clock gate of the clock source
+ *
+ * @note  The clock enable status is maintained by reference counter and
+ *        its status is not reset after software restart.
+ *
+ * @param[in] clk_src Clock source available to modules, in soc_module_clk_t
+ * @param[in] enable  Enable / Disable the clock gate
+ *
+ * @return
+ *      - ESP_OK               Success
+ *      - ESP_ERR_INVALID_ARG  Parameter error
+ */
+esp_err_t esp_clk_tree_enable_src(soc_module_clk_t clk_src, bool enable);
+
+#if SOC_CLOCK_TREE_MANAGEMENT_SUPPORTED
+/**
+ * @brief Set the clock source not in use  on the clock tree to the gated state.
+ */
+void esp_clk_tree_initialize(void);
+#endif
 
 #ifdef __cplusplus
 }

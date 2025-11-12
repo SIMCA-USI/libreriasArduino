@@ -59,7 +59,7 @@
 /**
  * \def MBEDTLS_PLATFORM_MS_TIME_ALT
  *
- * Define platform specific function to get time since bootup in milliseconds.
+ * Define platform specific function to get time since boot up in milliseconds.
  */
 #define MBEDTLS_PLATFORM_MS_TIME_ALT
 #else
@@ -412,6 +412,14 @@
  */
 #ifdef CONFIG_MBEDTLS_CMAC_C
 #define MBEDTLS_CMAC_C
+#else
+#ifdef CONFIG_MBEDTLS_USE_CRYPTO_ROM_IMPL
+/* The mbedtls present in ROM is built with the MBEDTLS_CMAC_C symbol being enabled,
+ * thus when using the mbedtls from ROM, CONFIG_MBEDTLS_CMAC_C needs to be enabled.
+ */
+#error "CONFIG_MBEDTLS_CMAC_C cannot be disabled when CONFIG_MBEDTLS_USE_CRYPTO_ROM_IMPL is enabled"
+#endif
+#undef MBEDTLS_CMAC_C
 #endif
 
 /**
@@ -841,7 +849,28 @@
  *
  * Disable if you only need to support RFC 5915 + 5480 key formats.
  */
+#ifdef CONFIG_MBEDTLS_PK_PARSE_EC_EXTENDED
 #define MBEDTLS_PK_PARSE_EC_EXTENDED
+#else
+#undef MBEDTLS_PK_PARSE_EC_EXTENDED
+#endif
+
+/**
+ * \def MBEDTLS_PK_PARSE_EC_COMPRESSED
+ *
+ * Enable the support for parsing public keys of type Short Weierstrass
+ * (MBEDTLS_ECP_DP_SECP_XXX and MBEDTLS_ECP_DP_BP_XXX) which are using the
+ * compressed point format. This parsing is done through ECP module's functions.
+ *
+ * \note As explained in the description of MBEDTLS_ECP_PF_COMPRESSED (in ecp.h)
+ *       the only unsupported curves are MBEDTLS_ECP_DP_SECP224R1 and
+ *       MBEDTLS_ECP_DP_SECP224K1.
+ */
+#ifdef CONFIG_MBEDTLS_PK_PARSE_EC_COMPRESSED
+#define MBEDTLS_PK_PARSE_EC_COMPRESSED
+#else
+#undef MBEDTLS_PK_PARSE_EC_COMPRESSED
+#endif
 
 /**
  * \def MBEDTLS_ERROR_STRERROR_DUMMY
@@ -1112,6 +1141,24 @@
 #define MBEDTLS_SSL_KEEP_PEER_CERTIFICATE
 #else
 #undef MBEDTLS_SSL_KEEP_PEER_CERTIFICATE
+#endif
+
+/**
+ * \def MBEDTLS_SSL_KEYING_MATERIAL_EXPORT
+ *
+ * When this option is enabled, the client and server can extract additional
+ * shared symmetric keys after an SSL handshake using the function
+ * mbedtls_ssl_export_keying_material().
+ *
+ * The process for deriving the keys is specified in RFC 5705 for TLS 1.2 and
+ * in RFC 8446, Section 7.5, for TLS 1.3.
+ *
+ * Comment this macro to disable mbedtls_ssl_export_keying_material().
+ */
+#ifdef CONFIG_MBEDTLS_SSL_KEYING_MATERIAL_EXPORT
+#define MBEDTLS_SSL_KEYING_MATERIAL_EXPORT
+#else
+#undef MBEDTLS_SSL_KEYING_MATERIAL_EXPORT
 #endif
 
 /**
@@ -2089,6 +2136,21 @@
 #endif
 
 /**
+ * \def MBEDTLS_SSL_CLI_ALLOW_WEAK_CERTIFICATE_VERIFICATION_WITHOUT_HOSTNAME
+ *
+ * Caller: library/ssl_tls.c
+ *
+ * Allow weak certificate verification without a hostname.
+ * This option is not recommended for production use.
+ */
+
+#if CONFIG_MBEDTLS_ALLOW_WEAK_CERTIFICATE_VERIFICATION
+#define MBEDTLS_SSL_CLI_ALLOW_WEAK_CERTIFICATE_VERIFICATION_WITHOUT_HOSTNAME
+#else
+#undef MBEDTLS_SSL_CLI_ALLOW_WEAK_CERTIFICATE_VERIFICATION_WITHOUT_HOSTNAME
+#endif
+
+/**
  * \def MBEDTLS_GCM_C
  *
  * Enable the Galois/Counter Mode (GCM).
@@ -2475,8 +2537,11 @@
  *            on it, and considering stronger message digests instead.
  *
  */
+#if CONFIG_MBEDTLS_SHA1_C
 #define MBEDTLS_SHA1_C
-
+#else
+#undef MBEDTLS_SHA1_C
+#endif
 /**
  * \def MBEDTLS_SHA224_C
  *

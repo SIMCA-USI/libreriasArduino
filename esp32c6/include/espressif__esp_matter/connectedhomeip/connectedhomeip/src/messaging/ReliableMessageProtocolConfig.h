@@ -30,10 +30,6 @@
 #include <system/SystemClock.h>
 #include <system/SystemConfig.h>
 
-#if CHIP_SYSTEM_CONFIG_USE_LWIP
-#include <lwip/opt.h>
-#endif // CHIP_SYSTEM_CONFIG_USE_LWIP
-
 namespace chip {
 
 /**
@@ -129,14 +125,14 @@ namespace chip {
 #ifndef CHIP_CONFIG_RMP_RETRANS_TABLE_SIZE
 #if CHIP_SYSTEM_CONFIG_USE_LWIP
 
-#if !LWIP_PBUF_FROM_CUSTOM_POOLS && PBUF_POOL_SIZE != 0
+#if !CHIP_SYSTEM_CONFIG_LWIP_PBUF_FROM_CUSTOM_POOL && PBUF_POOL_SIZE != 0
 // Configure the table size to be less than the number of packet buffers to make sure
 // that not all buffers are held by the retransmission entries, in which case the device
 // is unable to receive an ACK and hence becomes unavailable until a message times out.
 #define CHIP_CONFIG_RMP_RETRANS_TABLE_SIZE std::min(PBUF_POOL_SIZE - 1, CHIP_CONFIG_MAX_EXCHANGE_CONTEXTS)
 #else
 #define CHIP_CONFIG_RMP_RETRANS_TABLE_SIZE CHIP_CONFIG_MAX_EXCHANGE_CONTEXTS
-#endif // !LWIP_PBUF_FROM_CUSTOM_POOLS && PBUF_POOL_SIZE != 0
+#endif // !CHIP_SYSTEM_CONFIG_LWIP_PBUF_FROM_CUSTOM_POOL && PBUF_POOL_SIZE != 0
 
 #else // CHIP_SYSTEM_CONFIG_USE_LWIP
 
@@ -261,12 +257,12 @@ Optional<ReliableMessageProtocolConfig> GetLocalMRPConfig();
  * @param[in] idleInterval      The idle interval to use for the backoff calculation.
  * @param[in] lastActivityTime  The last time some activity has been recorded.
  * @param[in] activityThreshold The activity threshold for a node to be considered active.
- *
+ * @param[in] isFirstMessageOnExchange Indicates whether this is for the initial message on an exchange.
  * @return The maximum transmission time
  */
-System::Clock::Timestamp GetRetransmissionTimeout(System::Clock::Timestamp activeInterval, System::Clock::Timestamp idleInterval,
-                                                  System::Clock::Timestamp lastActivityTime,
-                                                  System::Clock::Timestamp activityThreshold);
+System::Clock::Timeout GetRetransmissionTimeout(System::Clock::Timeout activeInterval, System::Clock::Timeout idleInterval,
+                                                System::Clock::Timeout lastActivityTime, System::Clock::Timeout activityThreshold,
+                                                bool isFirstMessageOnExchange);
 
 #if CONFIG_BUILD_FOR_HOST_UNIT_TEST
 

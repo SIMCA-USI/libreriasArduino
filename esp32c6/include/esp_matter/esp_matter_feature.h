@@ -43,6 +43,37 @@ esp_err_t add(cluster_t *cluster);
 } /* feature */
 } /* descriptor */
 
+namespace access_control {
+namespace feature {
+namespace extension {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+
+} /* extension */
+
+namespace managed_device {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+
+} /* managed_device */
+
+} /* feature */
+} /* access_control */
+
+namespace bridged_device_basic_information {
+namespace feature {
+namespace bridged_icd_support {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+
+} /* bridged_icd_support */
+
+} /* feature */
+} /* bridged_device_basic_information */
+
 namespace administrator_commissioning {
 
 namespace feature {
@@ -56,6 +87,25 @@ esp_err_t add(cluster_t *cluster);
 
 } /* feature */
 } /* administrator_commissioning */
+
+namespace general_commissioning {
+namespace feature {
+namespace terms_and_conditions {
+typedef struct config {
+    uint16_t tc_accepted_version;
+    uint16_t tc_min_required_version;
+    uint16_t tc_acknowledgements;
+    bool tc_acknowledgements_required;
+    nullable<uint32_t> tc_update_deadline;
+    config(): tc_accepted_version(0), tc_min_required_version(0), tc_acknowledgements(0), tc_acknowledgements_required(true), tc_update_deadline(0) {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+
+} /* terms_and_conditions */
+} /* feature */
+} /* general_commissioning */
 
 namespace power_source {
 namespace feature {
@@ -156,12 +206,11 @@ esp_err_t add(cluster_t *cluster);
 
 } /* check_in_protocol_support */
 
-constexpr size_t k_max_user_active_mode_trigger_instruction_length = 128;
-
 namespace user_active_mode_trigger {
-typedef struct {
+typedef struct config {
     uint32_t user_active_mode_trigger_hint;
-    char user_active_mode_trigger_instruction[k_max_user_active_mode_trigger_instruction_length + 1];
+    char user_active_mode_trigger_instruction[attribute::k_user_active_mode_trigger_instruction_length + 1];
+    config() : user_active_mode_trigger_hint(0), user_active_mode_trigger_instruction{0} {}
 } config_t;
 
 uint32_t get_id();
@@ -275,7 +324,7 @@ typedef struct config {
     uint16_t couple_color_temp_to_level_min_mireds;
     nullable<uint16_t> startup_color_temperature_mireds;
     config() : color_temperature_mireds(0x00fa), color_temp_physical_min_mireds(0),
-               color_temp_physical_max_mireds(0xfeff), couple_color_temp_to_level_min_mireds(0),
+               color_temp_physical_max_mireds(0xfeff), couple_color_temp_to_level_min_mireds(1),
                startup_color_temperature_mireds(0x00fa) {}
 } config_t;
 
@@ -419,7 +468,7 @@ esp_err_t add(cluster_t *cluster, config_t *config);
 } /* feature */
 } /* window_covering */
 
-namespace diagnostics_network_wifi {
+namespace wifi_network_diagnotics {
 namespace feature {
 
 namespace packets_counts {
@@ -437,9 +486,9 @@ esp_err_t add(cluster_t *cluster);
 } /* error_counts */
 
 } /* feature */
-} /* diagnostics_network_wifi */
+} /* wifi_network_diagnotics */
 
-namespace diagnostics_network_ethernet {
+namespace ethernet_network_diagnostics {
 namespace feature {
 
 namespace packets_counts {
@@ -470,7 +519,7 @@ esp_err_t add(cluster_t *cluster, config_t *config);
 } /* error_counts */
 
 } /* feature */
-} /* diagnostics_network_ethernet */
+} /* ethernet_network_diagnostics */
 
 namespace thermostat {
 namespace feature {
@@ -572,6 +621,27 @@ typedef struct config {
 uint32_t get_id();
 esp_err_t add(cluster_t *cluster, config_t *config);
 } /* local_temperature_not_exposed */
+
+namespace matter_schedule_configuration {
+
+typedef struct config {
+    uint8_t number_of_schedules;
+    uint8_t number_of_schedule_transitions;
+    nullable<uint8_t> number_of_schedule_transition_per_day;
+    uint8_t active_schedule_handle[k_max_active_schedule_handle];
+
+    config (): number_of_schedules(0), number_of_schedule_transitions(0), number_of_schedule_transition_per_day() {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+} /* matter_schedule_configuration */
+
+namespace presets {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+} /* presets */
 
 } /* feature */
 } /* thermostat */
@@ -1433,7 +1503,7 @@ esp_err_t add(cluster_t *cluster);
 
 } /* momentary_switch */
 
-// MomentarySwitchRelease feature is dependent on MomentarySwitch feature, in order to add
+// MomentarySwitchRelease feature has dependency on MomentarySwitch and !ActionSwitch features, in order to add
 // MomentarySwitchRelease feature one must add MomentarySwitch feature first.
 
 namespace momentary_switch_release {
@@ -1443,8 +1513,8 @@ esp_err_t add(cluster_t *cluster);
 
 } /* momentary_switch_release */
 
-// MomentarySwitchRelease feature is dependent on MomentarySwitch and MomentarySwitchRelease feature, in order to add
-// MomentarySwitchRelease feature one must add MomentarySwitch and MomentarySwitchRelease feature first.
+// MomentarySwitchLongPress feature has dependency on MomentarySwitch and (MomentarySwitchRelease or ActionSwitch) features, in order to add
+// MomentarySwitchLongPress feature one must add MomentarySwitch and (MomentarySwitchRelease or ActionSwitch) features first.
 
 namespace momentary_switch_long_press {
 
@@ -1453,8 +1523,8 @@ esp_err_t add(cluster_t *cluster);
 
 } /* momentary_switch_long_press */
 
-// MomentarySwitchRelease feature is dependent on MomentarySwitch and MomentarySwitchRelease feature, in order to add
-// MomentarySwitchRelease feature one must add MomentarySwitch and MomentarySwitchRelease feature first.
+// MomentarySwitchMultiPress feature has dependency on ActionSwitch or (MomentarySwitch and MomentarySwitchRelease) features, in order to add
+// MomentarySwitchMultiPress feature one must add ActionSwitch or (MomentarySwitch and MomentarySwitchRelease) features first.
 
 namespace momentary_switch_multi_press {
 
@@ -1466,7 +1536,17 @@ typedef struct config {
 uint32_t get_id();
 esp_err_t add(cluster_t *cluster, config_t *config);
 
-} /* momentary_switch_multi_pressy */
+} /* momentary_switch_multi_press */
+
+// ActionSwitch feature has dependency on MomentarySwitch feature, in order to add
+// ActionSwitch feature one must add MomentarySwitch feature first.
+
+namespace action_switch {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+
+} /* action_switch */
 } /* feature */
 } /* switch_cluster */
 
@@ -1593,7 +1673,6 @@ namespace fan_control {
 namespace feature {
 
 namespace multi_speed {
-constexpr uint32_t k_max_limit = 100;
 typedef struct config {
     uint8_t speed_max;
     nullable<uint8_t> speed_setting;
@@ -1865,12 +1944,6 @@ uint32_t get_id();
 esp_err_t add(cluster_t *cluster);
 } /* finger_credentials */
 
-namespace logging {
-
-uint32_t get_id();
-esp_err_t add(cluster_t *cluster);
-} /* logging */
-
 namespace weekday_access_schedules {
 
 uint32_t get_id();
@@ -1912,12 +1985,6 @@ uint32_t get_id();
 esp_err_t add(cluster_t *cluster, config_t *config);
 } /* user */
 
-namespace notification {
-
-uint32_t get_id();
-esp_err_t add(cluster_t *cluster);
-} /* notification */
-
 namespace year_day_access_schedules {
 
 uint32_t get_id();
@@ -1941,6 +2008,18 @@ namespace unbolting {
 uint32_t get_id();
 esp_err_t add(cluster_t *cluster);
 } /* unbolting */
+
+namespace aliro_provisioning {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+} /* aliro_provisioning */
+
+namespace aliro_bleuwb{
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+} /* aliro_bleuwb */
 
 } /* feature */
 }/* door_lock */
@@ -2083,6 +2162,279 @@ esp_err_t add(cluster_t *cluster);
 
 } /* feature */
 } /* device_energy_management */
+
+namespace thread_border_router_management {
+namespace feature {
+
+namespace pan_change {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+
+} /* pan_change */
+
+} /* feature */
+} /* thread_border_router_management */
+
+namespace service_area {
+namespace feature {
+
+namespace select_while_running {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+
+} /* select_while_running */
+
+namespace progress_reporting {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+
+} /* progress_reporting */
+
+namespace maps {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+
+} /* maps */
+
+} /* feature */
+} /* service_area */
+
+namespace water_heater_management {
+namespace feature {
+
+namespace energy_management {
+
+typedef struct config {
+    uint16_t tank_volume;
+    int64_t estimated_heat_required;
+    config(): tank_volume(0), estimated_heat_required(0) {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+
+} /* energy_management */
+
+namespace tank_percent {
+
+typedef struct config {
+    uint8_t tank_percentage;
+    config(): tank_percentage(0) {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+} /* tank_percent */
+} /* feature */
+} /* water_heater_management */
+
+namespace energy_preference {
+namespace feature {
+
+namespace energy_balance {
+typedef struct config {
+    uint8_t current_energy_balance;
+    config() : current_energy_balance(0) {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+} /* energy_balance */
+
+namespace low_power_mode_sensitivity {
+typedef struct config {
+    uint8_t current_low_power_mode_sensitivity;
+    config() : current_low_power_mode_sensitivity(0) {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+} /* low_power_mode_sensitivity */
+
+} /* feature */
+} /* energy_preference */
+
+namespace occupancy_sensing {
+namespace feature {
+
+namespace other {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+} /* other */
+
+namespace passive_infrared {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+} /* passive_infrared */
+
+namespace ultrasonic {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+} /* ultrasonic */
+
+namespace physical_contact {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+} /* physical_contact */
+
+namespace active_infrared {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+} /* active_infrared */
+
+namespace radar {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+} /* radar */
+
+namespace rf_sensing {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+} /* rf_sensing */
+
+namespace vision {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+} /* vision */
+} /* feature */
+} /* occupancy_sensing */
+
+namespace pump_configuration_and_control {
+namespace feature {
+
+namespace constant_pressure {
+
+typedef struct config {
+    nullable<int16_t> min_const_pressure;
+    nullable<int16_t> max_const_pressure;
+    config() : min_const_pressure(), max_const_pressure() {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+
+} /* constant_pressure */
+
+namespace compensated_pressure {
+
+typedef struct config {
+    nullable<int16_t> min_comp_pressure;
+    nullable<int16_t> max_comp_pressure;
+    config() : min_comp_pressure(), max_comp_pressure() {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+
+} /* compensated_pressure */
+
+namespace constant_flow {
+
+typedef struct config {
+    nullable<uint16_t> min_const_flow;
+    nullable<uint16_t> max_const_flow;
+    config() : min_const_flow(), max_const_flow() {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+
+} /* constant_flow */
+
+namespace constant_speed {
+
+typedef struct config {
+    nullable<uint16_t> min_const_speed;
+    nullable<uint16_t> max_const_speed;
+    config() : min_const_speed(), max_const_speed() {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+
+} /* constant_speed */
+
+namespace constant_temperature {
+
+typedef struct config {
+    nullable<int16_t> min_const_temp;
+    nullable<int16_t> max_const_temp;
+    config() : min_const_temp(), max_const_temp() {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+
+} /* constant_temperature */
+
+namespace automatic {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+
+} /* automatic */
+
+namespace local_operation {
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+
+} /* automatic */
+} /* feature */
+} /* pump_configuration_and_control */
+
+namespace time_synchronization {
+namespace feature {
+
+namespace time_zone {
+typedef struct config {
+    uint8_t time_zone_database;
+    config() : time_zone_database(2/* None */) {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+} /* time_zone */
+
+namespace ntp_client {
+typedef struct config {
+    bool supports_dns_resolve;
+    config() : supports_dns_resolve(false) {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+} /* ntp_client */
+
+namespace ntp_server {
+typedef struct config {
+    bool ntp_server_available;
+    config() : ntp_server_available(false) {}
+} config_t;
+
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster, config_t *config);
+} /* ntp_server */
+
+namespace time_sync_client {
+uint32_t get_id();
+esp_err_t add(cluster_t *cluster);
+} /* time_sync_client */
+
+} /* feature */
+} /* time_synchronization */
 
 } /* cluster */
 } /* esp_matter */

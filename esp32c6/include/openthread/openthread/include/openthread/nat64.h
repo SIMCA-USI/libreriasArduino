@@ -35,8 +35,14 @@
 #ifndef OPENTHREAD_NAT64_H_
 #define OPENTHREAD_NAT64_H_
 
+#include <stdbool.h>
+#include <stdint.h>
+
+#include <openthread/error.h>
+#include <openthread/instance.h>
 #include <openthread/ip6.h>
 #include <openthread/message.h>
+#include <openthread/platform/toolchain.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -158,11 +164,20 @@ void otNat64GetErrorCounters(otInstance *aInstance, otNat64ErrorCounters *aCount
  */
 typedef struct otNat64AddressMapping
 {
-    uint64_t mId; ///< The unique id for a mapping session.
+    uint64_t     mId;  ///< The unique id for a mapping session.
+    otIp4Address mIp4; ///< The IPv4 address of the mapping.
+    otIp6Address mIp6; ///< The IPv6 address of the mapping.
 
-    otIp4Address mIp4;             ///< The IPv4 address of the mapping.
-    otIp6Address mIp6;             ///< The IPv6 address of the mapping.
-    uint32_t     mRemainingTimeMs; ///< Remaining time before expiry in milliseconds.
+    /** The source port or ICMP ID of the mapping. Used when
+     *  OPENTHREAD_CONFIG_NAT64_PORT_TRANSLATION_ENABLE is true.
+     */
+    uint16_t mSrcPortOrId;
+
+    /** The translated port or ICMP ID of the mapping. Used when
+     *  OPENTHREAD_CONFIG_NAT64_PORT_TRANSLATION_ENABLE is true.
+     */
+    uint16_t mTranslatedPortOrId;
+    uint32_t mRemainingTimeMs; ///< Remaining time before expiry in milliseconds.
 
     otNat64ProtocolCounters mCounters;
 } otNat64AddressMapping;
@@ -312,10 +327,24 @@ otMessage *otIp4NewMessage(otInstance *aInstance, const otMessageSettings *aSett
  * @retval  OT_ERROR_INVALID_ARGS   The given CIDR is not a valid IPv4 CIDR for NAT64.
  * @retval  OT_ERROR_NONE           Successfully set the CIDR for NAT64.
  *
- * @sa otBorderRouterSend
- * @sa otBorderRouterSetReceiveCallback
+ * @sa otNat64Send
+ * @sa otNat64SetReceiveIp4Callback
  */
 otError otNat64SetIp4Cidr(otInstance *aInstance, const otIp4Cidr *aCidr);
+
+/**
+ * Clears the CIDR used when setting the source address of the outgoing translated IPv4 packets.
+ *
+ * Is available only when OPENTHREAD_CONFIG_NAT64_TRANSLATOR_ENABLE is enabled.
+ *
+ * @note This function can be called at any time, but the NAT64 translator will be reset and all existing sessions
+ * will be expired when clearing the configured CIDR.
+ *
+ * @param[in] aInstance  A pointer to an OpenThread instance.
+ *
+ * @sa otNat64SetIp4Cidr
+ */
+void otNat64ClearIp4Cidr(otInstance *aInstance);
 
 /**
  * Translates an IPv4 datagram to an IPv6 datagram and sends via the Thread interface.
@@ -423,7 +452,7 @@ void otIp4ToIp4MappedIp6Address(const otIp4Address *aIp4Address, otIp6Address *a
  * truncated but the outputted string is always null-terminated.
  *
  * @param[in]  aAddress  A pointer to an IPv4 address (MUST NOT be NULL).
- * @param[out] aBuffer   A pointer to a char array to output the string (MUST NOT be `nullptr`).
+ * @param[out] aBuffer   A pointer to a char array to output the string (MUST NOT be NULL).
  * @param[in]  aSize     The size of @p aBuffer (in bytes).
  */
 void otIp4AddressToString(const otIp4Address *aAddress, char *aBuffer, uint16_t aSize);
@@ -451,7 +480,7 @@ otError otIp4CidrFromString(const char *aString, otIp4Cidr *aCidr);
  * truncated but the outputted string is always null-terminated.
  *
  * @param[in]  aCidr     A pointer to an IPv4 CIDR (MUST NOT be NULL).
- * @param[out] aBuffer   A pointer to a char array to output the string (MUST NOT be `nullptr`).
+ * @param[out] aBuffer   A pointer to a char array to output the string (MUST NOT be NULL).
  * @param[in]  aSize     The size of @p aBuffer (in bytes).
  */
 void otIp4CidrToString(const otIp4Cidr *aCidr, char *aBuffer, uint16_t aSize);

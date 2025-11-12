@@ -35,6 +35,11 @@
 #ifndef OPENTHREAD_LINK_RAW_H_
 #define OPENTHREAD_LINK_RAW_H_
 
+#include <stdbool.h>
+#include <stdint.h>
+
+#include <openthread/error.h>
+#include <openthread/instance.h>
 #include <openthread/platform/radio.h>
 
 #ifdef __cplusplus
@@ -114,6 +119,26 @@ otError otLinkRawSetPromiscuous(otInstance *aInstance, bool aEnable);
  * @retval OT_ERROR_INVALID_STATE    If the raw link-layer isn't enabled.
  */
 otError otLinkRawSetShortAddress(otInstance *aInstance, uint16_t aShortAddress);
+
+/**
+ * Set the alternate short address.
+ *
+ * This is an optional API. Support for this is indicated by including the capability `OT_RADIO_CAPS_ALT_SHORT_ADDR` in
+ * `otLinkRawGetCaps()`.
+ *
+ * When supported, the radio will accept received frames destined to the specified alternate short address in addition
+ * to the short address provided in `otLinkRawSetShortAddress()`.
+ *
+ * The @p aShortAddress can be set to `OT_RADIO_INVALID_SHORT_ADDR` (0xfffe) to clear any previously set alternate
+ * short address.
+ *
+ * @param[in] aInstance      The OpenThread instance structure.
+ * @param[in] aShortAddress  The alternate short address. `OT_RADIO_INVALID_SHORT_ADDR` to clear.
+ *
+ * @retval OT_ERROR_NONE             Successfully set the alternate short address.
+ * @retval OT_ERROR_INVALID_STATE    The raw link-layer is not enabled.
+ */
+otError otLinkRawSetAlternateShortAddress(otInstance *aInstance, otShortAddress aShortAddress);
 
 /**
  * Transition the radio from Receive to Sleep.

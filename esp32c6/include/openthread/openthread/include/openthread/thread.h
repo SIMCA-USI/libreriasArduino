@@ -35,9 +35,15 @@
 #ifndef OPENTHREAD_THREAD_H_
 #define OPENTHREAD_THREAD_H_
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #include <openthread/dataset.h>
+#include <openthread/error.h>
+#include <openthread/instance.h>
+#include <openthread/ip6.h>
 #include <openthread/link.h>
-#include <openthread/message.h>
+#include <openthread/platform/radio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -176,12 +182,8 @@ typedef struct otMleCounters
     uint16_t mAttachAttempts;                ///< Number of attach attempts while device was detached.
     uint16_t mPartitionIdChanges;            ///< Number of changes to partition ID.
     uint16_t mBetterPartitionAttachAttempts; ///< Number of attempts to attach to a better partition.
+    uint16_t mBetterParentAttachAttempts;    ///< Number of attempts to attach to find a better parent (parent search).
 
-    /**
-     * Role time tracking.
-     *
-     * When uptime feature is enabled (OPENTHREAD_CONFIG_UPTIME_ENABLE = 1) time spent in each MLE role is tracked.
-     */
     uint64_t mDisabledTime; ///< Number of milliseconds device has been in OT_DEVICE_ROLE_DISABLED role.
     uint64_t mDetachedTime; ///< Number of milliseconds device has been in OT_DEVICE_ROLE_DETACHED role.
     uint64_t mChildTime;    ///< Number of milliseconds device has been in OT_DEVICE_ROLE_CHILD role.
@@ -220,6 +222,16 @@ typedef struct otThreadParentResponseInfo
  * @param[in] aContext A pointer to application-specific context.
  */
 typedef void (*otDetachGracefullyCallback)(void *aContext);
+
+/**
+ * Informs the application about the result of waking a Wake-up End Device.
+ *
+ * @param[in] aError   OT_ERROR_NONE    Indicates that the Wake-up End Device has been added as a neighbor.
+ *                     OT_ERROR_FAILED  Indicates that the Wake-up End Device has not received a wake-up frame, or it
+ *                                      has failed the MLE procedure.
+ * @param[in] aContext A pointer to application-specific context.
+ */
+typedef void (*otWakeupCallback)(otError aError, void *aContext);
 
 /**
  * Starts Thread protocol operation.
@@ -921,6 +933,21 @@ const otMleCounters *otThreadGetMleCounters(otInstance *aInstance);
 void otThreadResetMleCounters(otInstance *aInstance);
 
 /**
+ * Gets the current attach duration (number of seconds since the device last attached).
+ *
+ * If the device is not currently attached, zero will be returned.
+ *
+ * Unlike the role-tracking variables in `otMleCounters`, which track the cumulative time the device is in each role,
+ * this function tracks the time since the last successful attachment, indicating how long the device has been
+ * connected to the Thread mesh (regardless of its role, whether acting as a child, router, or leader).
+ *
+ * @param[in] aInstance  A pointer to an OpenThread instance.
+ *
+ * @returns The number of seconds since last attached.
+ */
+uint32_t otThreadGetCurrentAttachDuration(otInstance *aInstance);
+
+/**
  * Pointer is called every time an MLE Parent Response message is received.
  *
  * This is used in `otThreadRegisterParentResponseCallback()`.
@@ -1113,6 +1140,36 @@ void otThreadSetStoreFrameCounterAhead(otInstance *aInstance, uint32_t aStoreFra
  * @returns The current store frame counter ahead.
  */
 uint32_t otThreadGetStoreFrameCounterAhead(otInstance *aInstance);
+
+/**
+ * Attempts to wake a Wake-up End Device.
+ *
+ * Requires `OPENTHREAD_CONFIG_WAKEUP_COORDINATOR_ENABLE` to be enabled.
+ *
+ * The wake-up starts with transmitting a wake-up frame sequence to the Wake-up End Device.
+ * During the wake-up sequence, and for a short time after the last wake-up frame is sent, the Wake-up Coordinator keeps
+ * its receiver on to be able to receive an initial mesh link establishment message from the WED.
+ *
+ * @warning The functionality implemented by this function is still in the design phase.
+ *          Consequently, the prototype and semantics of this function are subject to change.
+ *
+ * @param[in] aInstance         A pointer to an OpenThread instance.
+ * @param[in] aWedAddress       The extended address of the Wake-up End Device.
+ * @param[in] aWakeupIntervalUs An interval between consecutive wake-up frames (in microseconds).
+ * @param[in] aWakeupDurationMs Duration of the wake-up sequence (in milliseconds).
+ * @param[in] aCallback         A pointer to function that is called when the wake-up succeeds or fails.
+ * @param[in] aCallbackContext  A pointer to callback application-specific context.
+ *
+ * @retval OT_ERROR_NONE          Successfully started the wake-up.
+ * @retval OT_ERROR_INVALID_STATE Another attachment request is still in progress.
+ * @retval OT_ERROR_INVALID_ARGS  The wake-up interval or duration are invalid.
+ */
+otError otThreadWakeup(otInstance         *aInstance,
+                       const otExtAddress *aWedAddress,
+                       uint16_t            aWakeupIntervalUs,
+                       uint16_t            aWakeupDurationMs,
+                       otWakeupCallback    aCallback,
+                       void               *aCallbackContext);
 
 /**
  * @}

@@ -35,10 +35,15 @@
 #ifndef OPENTHREAD_DATASET_H_
 #define OPENTHREAD_DATASET_H_
 
+#include <stdbool.h>
+#include <stdint.h>
+
+#include <openthread/error.h>
 #include <openthread/instance.h>
 #include <openthread/ip6.h>
 #include <openthread/platform/crypto.h>
 #include <openthread/platform/radio.h>
+#include <openthread/platform/toolchain.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -152,7 +157,10 @@ typedef struct otSecurityPolicy
 } otSecurityPolicy;
 
 /**
- * Represents Channel Mask.
+ * Represents a Channel Mask.
+ *
+ * The least significant bit (LSB), also referred to as bit 0, corresponds to channel number 0, and so on.
+ *
  */
 typedef uint32_t otChannelMask;
 

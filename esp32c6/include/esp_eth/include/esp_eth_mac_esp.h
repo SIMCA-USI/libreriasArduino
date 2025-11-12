@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2019-2024 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2019-2025 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -192,7 +192,29 @@ typedef enum {
     ETH_MAC_ESP_CMD_SET_TDES0_CFG_BITS = ETH_CMD_CUSTOM_MAC_CMDS_OFFSET,    /*!< Set Transmit Descriptor Word 0 control bit mask (debug option)*/
     ETH_MAC_ESP_CMD_CLEAR_TDES0_CFG_BITS,                                   /*!< Clear Transmit Descriptor Word 0 control bit mask (debug option)*/
     ETH_MAC_ESP_CMD_PTP_ENABLE,                                             /*!< Enable IEEE1588 Time stamping */
+    ETH_MAC_ESP_CMD_S_PTP_TIME,                                             /*!< Set PTP time in the module */
+    ETH_MAC_ESP_CMD_G_PTP_TIME,                                             /*!< Get PTP time from the module */
+    ETH_MAC_ESP_CMD_ADJ_PTP_FREQ,                                           /*!< Adjust current PTP time frequency increment by scale factor */
+    ETH_MAC_ESP_CMD_ADJ_PTP_TIME,                                           /*!< Adjust base PTP time frequency increment by PPS */
+    ETH_MAC_ESP_CMD_S_TARGET_TIME,                                          /*!< Set Target Time at which interrupt is invoked when PTP time exceeds this value*/
+    ETH_MAC_ESP_CMD_S_TARGET_CB                                             /*!< Set pointer to a callback function invoked when PTP time exceeds Target Time */
 } eth_mac_esp_io_cmd_t;
+
+#ifdef SOC_EMAC_IEEE1588V2_SUPPORTED
+/**
+ * @brief Type of callback function invoked under Time Stamp target time exceeded interrupt
+ *
+ * @warning Time stamping is currently Experimental Feature! Be aware that API may change.
+ *
+ * @param eth: mediator of Ethernet driver
+ * @param user_args user specific arguments (placeholder - IDF-11429)
+ *
+ * @return
+ *          - TRUE when high priority task has been woken by this function
+ *          - FALSE no high priority task was woken by this function
+ */
+typedef bool (*ts_target_exceed_cb_from_isr_t)(esp_eth_mediator_t *eth, void *user_args);
+#endif // SOC_EMAC_IEEE1588V2_SUPPORTED
 
 /**
  * @brief Default ESP32's EMAC specific configuration
@@ -242,7 +264,7 @@ typedef enum {
         .smi_gpio =                                                           \
         {                                                                     \
             .mdc_num = 31,                                                    \
-            .mdio_num = 27                                                    \
+            .mdio_num = 52                                                    \
         },                                                                    \
         .interface = EMAC_DATA_INTERFACE_RMII,                                \
         .clock_config =                                                       \
@@ -251,14 +273,6 @@ typedef enum {
             {                                                                 \
                 .clock_mode = EMAC_CLK_EXT_IN,                                \
                 .clock_gpio = (emac_rmii_clock_gpio_t) 50                     \
-            }                                                                 \
-        },                                                                    \
-        .clock_config_out_in =                                                \
-        {                                                                     \
-            .rmii =                                                           \
-            {                                                                 \
-                .clock_mode = EMAC_CLK_EXT_IN,                                \
-                .clock_gpio = (emac_rmii_clock_gpio_t) -1                     \
             }                                                                 \
         },                                                                    \
         .dma_burst_len = ETH_DMA_BURST_LEN_32,                                \
@@ -273,6 +287,14 @@ typedef enum {
                 .crs_dv_num = 28,                                             \
                 .rxd0_num = 29,                                               \
                 .rxd1_num = 30                                                \
+            }                                                                 \
+        },                                                                    \
+        .clock_config_out_in =                                                \
+        {                                                                     \
+            .rmii =                                                           \
+            {                                                                 \
+                .clock_mode = EMAC_CLK_EXT_IN,                                \
+                .clock_gpio = (emac_rmii_clock_gpio_t) -1                     \
             }                                                                 \
         },                                                                    \
     }

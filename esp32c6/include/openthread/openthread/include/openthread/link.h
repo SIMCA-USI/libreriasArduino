@@ -35,8 +35,13 @@
 #ifndef OPENTHREAD_LINK_H_
 #define OPENTHREAD_LINK_H_
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #include <openthread/commissioner.h>
 #include <openthread/dataset.h>
+#include <openthread/error.h>
+#include <openthread/instance.h>
 #include <openthread/platform/radio.h>
 
 #ifdef __cplusplus
@@ -588,9 +593,18 @@ otError otLinkSetPollPeriod(otInstance *aInstance, uint32_t aPollPeriod);
  *
  * @param[in]  aInstance A pointer to an OpenThread instance.
  *
- * @returns A pointer to the IEEE 802.15.4 Short Address.
+ * @returns The IEEE 802.15.4 Short Address.
  */
 otShortAddress otLinkGetShortAddress(otInstance *aInstance);
+
+/**
+ * Get the IEEE 802.15.4 alternate short address.
+ *
+ * @param[in]  aInstance A pointer to an OpenThread instance.
+ *
+ * @returns The alternate short address, or `OT_RADIO_INVALID_SHORT_ADDR` (0xfffe) if there is no alternate address.
+ */
+otShortAddress otLinkGetAlternateShortAddress(otInstance *aInstance);
 
 /**
  * Returns the maximum number of frame retries during direct transmission.
@@ -1093,7 +1107,7 @@ otError otLinkSetRegion(otInstance *aInstance, uint16_t aRegionCode);
  * @param[out] aRegionCode  The radio region code. The `aRegionCode >> 8` is first ascii char
  *                          and the `aRegionCode & 0xff` is the second ascii char.
  *
- * @retval  OT_ERROR_INVALID_ARGS     @p aRegionCode is nullptr.
+ * @retval  OT_ERROR_INVALID_ARGS     @p aRegionCode is NULL.
  * @retval  OT_ERROR_FAILED           Other platform specific errors.
  * @retval  OT_ERROR_NONE             Successfully got region code.
  * @retval  OT_ERROR_NOT_IMPLEMENTED  The feature is not implemented.

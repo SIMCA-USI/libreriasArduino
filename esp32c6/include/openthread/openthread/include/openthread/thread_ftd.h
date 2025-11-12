@@ -35,9 +35,15 @@
 #ifndef OPENTHREAD_THREAD_FTD_H_
 #define OPENTHREAD_THREAD_FTD_H_
 
-#include <openthread/link.h>
-#include <openthread/message.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+#include <openthread/dataset.h>
+#include <openthread/error.h>
+#include <openthread/instance.h>
+#include <openthread/ip6.h>
 #include <openthread/thread.h>
+#include <openthread/platform/radio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,7 +63,7 @@ typedef struct
     otExtAddress mExtAddress;           ///< IEEE 802.15.4 Extended Address
     uint32_t     mTimeout;              ///< Timeout
     uint32_t     mAge;                  ///< Seconds since last heard
-    uint64_t     mConnectionTime;       ///< Seconds since attach (requires `OPENTHREAD_CONFIG_UPTIME_ENABLE`)
+    uint64_t     mConnectionTime;       ///< Seconds since attach
     uint16_t     mRloc16;               ///< RLOC16
     uint16_t     mChildId;              ///< Child ID
     uint8_t      mNetworkDataVersion;   ///< Network Data Version

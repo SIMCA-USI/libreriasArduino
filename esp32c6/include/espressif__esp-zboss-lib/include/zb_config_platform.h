@@ -41,6 +41,7 @@
 #include "hal/gpio_types.h"
 #include "hal/uart_types.h"
 #include "driver/uart.h"
+#include "esp_ieee802154_types.h"
 
 #define ZB_ESP
 #define ZB_CONFIG_ESP
@@ -71,100 +72,6 @@
    2 * ZB_MAC_A_UNIT_BACKOFF_PERIOD * ZB_SYMBOL_DURATION_USEC \
    - 900)
 
-typedef enum {
-    ZB_RADIO_MODE_INIT_UART = 0x0,
-    ZB_HOST_MODE_INIT_UART  = 0x1,
-} zb_esp_uart_init_mode;
-
-typedef enum {
-    ZB_RADIO_MODE_NATIVE   = 0x0,      /*!< Use the native 15.4 radio */
-    ZB_RADIO_MODE_UART_RCP = 0x1,      /*!< UART connection to a 15.4 capable radio co - processor (RCP) */
-    ZB_RADIO_MODE_SPI_RCP  = 0x2,      /*!< SPI connection to a 15.4 capable radio co - processor (RCP) */
-} esp_zb_radio_mode_t;
-
-typedef enum {
-    ZB_HOST_CONNECTION_MODE_NONE       = 0x0, /*!< Disable host connection */
-    ZB_HOST_CONNECTION_MODE_CLI_UART   = 0x1, /*!< CLI UART connection to the host */
-    ZB_HOST_CONNECTION_MODE_RCP_UART   = 0x2, /*!< RCP UART connection to the host */
-} esp_zb_host_connection_mode_t;
-
-typedef enum {
-    ZB_SERIAL_MODE_DISABLE   = 0x0,      /*!< Disable osif serial mode  */
-    ZB_SERIAL_MODE_UART      = 0x1,      /*!< osif serial mode through uart */
-} esp_zb_serial_mode_t;
-
-typedef struct {
-    uart_port_t port;               /*!< UART port number */
-    gpio_num_t rx_pin;              /*!< UART RX pin */
-    gpio_num_t tx_pin;              /*!< UART TX pin */
-    uart_config_t uart_config;      /*!< UART configuration, see uart_config_t docs */
-} esp_zb_uart_config_t;
-
-typedef struct {
-    esp_zb_serial_mode_t             serial_mode;                   /*!< The osif serial connection mode */
-    esp_zb_uart_config_t             osif_serial_uart_config;       /*!< The uart configuration to osif serial */
-} esp_zb_serial_config_t;
-
-typedef struct {
-    esp_zb_radio_mode_t     radio_mode;         /*!< The radio mode */
-    esp_zb_uart_config_t    radio_uart_config;  /*!< The uart configuration to RCP */
-} esp_zb_radio_config_t;
-
-typedef struct {
-    esp_zb_host_connection_mode_t   host_connection_mode;   /*!< The host connection mode */
-    esp_zb_uart_config_t            host_uart_config;       /*!< The uart configuration to host */
-} esp_zb_host_config_t;
-
-typedef struct {
-    esp_zb_radio_config_t               radio_config;   /*!< The radio configuration */
-    esp_zb_host_config_t                host_config;    /*!< The host connection configuration */
-}  esp_zb_platform_config_t;
-
-typedef void (*esp_rcp_failure_callback_t)(uint8_t param);
-
-/**
- * @brief  Set the espressif soc platform config
- *
- * @param[in] config - pointer to platform configuration @ref esp_zb_platform_config_t
- *
- * @return - ESP_OK on success
- *
- */
-esp_err_t esp_zb_platform_config(esp_zb_platform_config_t *config);
-
-/**
- * @brief  Get the espressif soc platform config
- *
- * @return - pointer to platform configuration @ref esp_zb_platform_config_t
- *
- */
-esp_zb_platform_config_t* esp_zb_platform_config_get(void);
-
-/**
- * @brief  Deinitialize the RCP
- *
- * @return - ESP_OK on success
- *
- */
-esp_err_t esp_zb_rcp_deinit(void);
-
-/**
- * @brief  Set zigbee default long poll interval
- *
- * @note  Used internally by the Zigbee SDK, no user intervention is required.
- *
- * @param[in] milliseconds - default long_poll_interval
- */
-void esp_zb_set_default_long_poll_interval(uint32_t milliseconds);
-
-/**
- * @brief  Get the zigbee default long poll interval
- *
- * @note  Used internally by the Zigbee SDK, no user intervention is required.
- *
- * @return zigbee default long poll interval
- *
- */
-uint32_t esp_zb_get_default_long_poll_interval(void);
-
-#define ESP_ZB_PIM_DEFAULT_LONG_POLL_INTERVAL  esp_zb_get_default_long_poll_interval()
+/* Default long poll interval */
+uint32_t zb_get_default_long_poll_interval(void);
+#define ESP_ZB_PIM_DEFAULT_LONG_POLL_INTERVAL  zb_get_default_long_poll_interval()
